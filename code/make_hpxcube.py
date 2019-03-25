@@ -33,15 +33,15 @@ if __name__ == '__main__':
 
     survey = args.survey
     mag = surveys.surveys[survey]['mag']
-    mag_g = mag % G
-    mag_r = mag % R
-    mag_i = mag % I
+    mag_g = mag % 'G'
+    mag_r = mag % 'R'
+    mag_i = mag % 'I'
     ext = surveys.surveys[survey]['ext']
     if ext is not None:
         ext = surveys.surveys[survey]['ext']
-        ext_g = ext % G
-        ext_r = ext % R
-        ext_i = ext % I
+        ext_g = ext % 'G'
+        ext_r = ext % 'R'
+        ext_i = ext % 'I'
     minmag = surveys.surveys[survey]['minmag']
     maxmag = surveys.surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
