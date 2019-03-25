@@ -8,7 +8,7 @@ surveys = odict([
          data_dir='/home/s1/kadrlica/projects/field_of_streams/v8/skim/',
          fracdet='/data/des40.b/data/y3a2/maps/y3a2_griz_o.4096_t.32768_coverfoot_EQU.fits.gz',
          minmag=16.,
-         maxmag=23.5))
+         maxmag=23.5)),
     ('DES_DR1',
      dict(
          mag='WAVG_MAG_PSF_%s_DERED',
@@ -16,15 +16,15 @@ surveys = odict([
          data_dir='/data/des40.b/data/nshipp/skim518/',
          fracdet='/data/des40.b/data/y3a2/maps/y3a2_griz_o.4096_t.32768_coverfoot_EQU.fits.gz',
          minmag=16.,
-         maxmag=23.5))
-    ('PS1',  # star galaxy separation?
+         maxmag=23.5)),
+    ('PS1',
      dict(
          mag='%sFPSFMAG',  # '%sPSFMAG',
          ext=None,  # 'EXTSFD_%s',
          data_dir='/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/',  # '/data/des40.b/data/pan-starrs/dr1/healpix/',
          fracdet=None,
          minmag=12.,
-         maxmag=23.3))
+         maxmag=23.3)),
     ('SDSS_DR13',  # star galaxy separation?
      dict(
          mag='MAG_PSF_SFD_%s',
