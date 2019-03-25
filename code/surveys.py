@@ -17,7 +17,7 @@ surveys = odict([
          fracdet='/data/des40.b/data/y3a2/maps/y3a2_griz_o.4096_t.32768_coverfoot_EQU.fits.gz',
          minmag=16.,
          maxmag=23.5)),
-    ('PS1', s
+    ('PS1',
      dict(
          mag='%sFPSFMAG',  # '%sPSFMAG',
          ext=None,  # 'EXTSFD_%s',
