@@ -17,12 +17,12 @@ surveys = odict([
          fracdet='/data/des40.b/data/y3a2/maps/y3a2_griz_o.4096_t.32768_coverfoot_EQU.fits.gz',
          minmag=16.,
          maxmag=23.5)),
-    ('PS1',
+    ('PS1', s
      dict(
          mag='%sFPSFMAG',  # '%sPSFMAG',
          ext=None,  # 'EXTSFD_%s',
          data_dir='/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/',  # '/data/des40.b/data/pan-starrs/dr1/healpix/',
-         fracdet=None,
+         fracdet='/home/s1/smau/projects/panstarrs/simple_v3/panstarrs_pseudo_fracdet.fits.gz',  # None,
          minmag=12.,
          maxmag=23.3)),
     ('SDSS_DR13',  # star galaxy separation?
