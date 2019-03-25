@@ -42,9 +42,10 @@ if __name__ == '__main__':
         ext_g = ext % 'G'
         ext_r = ext % 'R'
         ext_i = ext % 'I'
+        # fix this, not relevant for now
     minmag = surveys.surveys[survey]['minmag']
     maxmag = surveys.surveys[survey]['maxmag']
-    # columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
+    # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try mp search
     columns = ['RA', 'DEC', mag_g, mag_r]
 
     ###################
