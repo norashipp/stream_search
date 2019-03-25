@@ -22,7 +22,7 @@ surveys = odict([
          mag='%sFPSFMAG',  # '%sPSFMAG',
          ext=None,  # 'EXTSFD_%s',
          data_dir='/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/',  # '/data/des40.b/data/pan-starrs/dr1/healpix/',
-         fracdet='/home/s1/smau/projects/panstarrs/simple_v3/panstarrs_pseudo_fracdet.fits.gz',  # None,
+         fracdet=None,  # '/home/s1/smau/projects/panstarrs/simple_v3/panstarrs_pseudo_fracdet.fits.gz',
          minmag=12.,
          maxmag=23.3)),
     ('SDSS_DR13',  # star galaxy separation?
