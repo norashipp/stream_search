@@ -26,7 +26,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4, err_type='median'
 
 
 def select_isochrone(mag_g, mag_r, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2):
-	mu, age, z = iso_params
+    mu, age, z = iso_params
 
     mk = mkpol(mu, age, z, dmu, C, E)
     pth = Path(mk)
@@ -47,9 +47,10 @@ def calculate_locus(gr, ri):
     p = np.polyfit(xx, yy, deg=1)
     return p
 
+
 def locus(mag_g, mag_r, mag_i, p=None):
-	if np.any(p == None):
-		p = calculate_locus(mag_g - mag_r, mag_r - mag_i)
+    if np.any(p == None):
+        p = calculate_locus(mag_g - mag_r, mag_r - mag_i)
     return p[0] * (mag_g - mag_r) + p[1]
 
 
@@ -57,6 +58,3 @@ def select_metal_poor(mag_g, mag_r, mag_i, survey='DES_Y3A2', dmin=0.02, dmax=0.
     stellar_locus = locus(data, p=p)
     idx = (mag_r - mag_i > stellar_locus + dmin) & (mag_r - mag_i < stellar_locus + dmax)
     return data[idx], idx
-
-
-
