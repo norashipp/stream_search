@@ -19,12 +19,12 @@ surveys = odict([
          maxmag=23.5))
     ('PS1',  # star galaxy separation?
      dict(
-         mag='%sPSFMAG',
-         ext='EXTSFD_%s',
-         data_dir='/data/des40.b/data/pan-starrs/dr1/healpix/',
+         mag='%sFPSFMAG',  # '%sPSFMAG',
+         ext=None,  # 'EXTSFD_%s',
+         data_dir='/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/',  # '/data/des40.b/data/pan-starrs/dr1/healpix/',
          fracdet=None,
-         minmag=16.,
-         maxmag=23.0))
+         minmag=12.,
+         maxmag=23.3))
     ('SDSS_DR13',  # star galaxy separation?
      dict(
          mag='MAG_PSF_SFD_%s',

@@ -44,7 +44,8 @@ if __name__ == '__main__':
         ext_i = ext % I
     minmag = surveys.surveys[survey]['minmag']
     maxmag = surveys.surveys[survey]['maxmag']
-    columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
+    # columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
+    columns = ['RA', 'DEC', mag_g, mag_r]
 
     ###################
     dmu = 0.1
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     age = 12.0
     z = 0.0002
 
-    metal_poor = True
+    metal_poor = False
     ###################
 
     if surveys.surveys[survey]['fracdet'] is not None:
