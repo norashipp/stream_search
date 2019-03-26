@@ -81,7 +81,7 @@ if __name__ == '__main__':
         ang = hp.pix2ang(32, pix, nest=False, lonlat=True)
         c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
         b = c.galactic.b.deg
-        BMIN = 5
+        BMIN = 10
         idx = np.abs(b) > BMIN
         filenames = np.asarray(filenames)[idx]
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     for i, mod in enumerate(modulii):
         print(" bin=%i: m-M = %.1f..." % (i, mod))
 
-        sel = filter_data.select_isochrone(data[mag_g], data[mag_r], mod, age=age, z=z, dmu=dmu, C=[0.05, 0.1], E=2)
+        sel = filter_data.select_isochrone(data[mag_g], data[mag_r], mod, iso_params=[mod, age, z], C=[0.05, 0.1], E=2)
         d = data[sel]
 
         if metal_poor:

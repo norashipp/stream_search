@@ -3,6 +3,8 @@ from __future__ import division
 import numpy as np
 from matplotlib.path import Path
 
+from ugali.analysis.isochrone import factory as isochrone_factory
+
 
 ###########
 # CMD CUT #
@@ -15,7 +17,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4, err_type='median'
     # err changes between surveys!
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
-    iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z)
+    iso = isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z)
     c = iso.color
     m = iso.mag
     mnear = m + mu - dmu / 2.
