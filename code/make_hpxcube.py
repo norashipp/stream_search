@@ -2,6 +2,7 @@ import os
 import glob
 import logging
 from collections import OrderedDict as odict
+import gc
 
 import fitsio
 import numpy as np
@@ -81,15 +82,21 @@ if __name__ == '__main__':
         ang = hp.pix2ang(32, pix, nest=False, lonlat=True)
         c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
         b = c.galactic.b.deg
-        BMIN = 10
+        BMIN = 20
         idx = np.abs(b) > BMIN
         filenames = np.asarray(filenames)[idx]
 
     data = load_infiles(filenames, columns=columns, multiproc=8)
+    gc.collect()
 
     # Select magnitude range
     print "Selecting: %.1f < %s < %.1f" % (minmag, mag_g, maxmag)
-    data = data[(data[mag_g] < maxmag) & (data[mag_g] > minmag)]
+    # data = data[(data[mag_g] < maxmag) & (data[mag_g] > minmag)]
+    a1 = data[mag_g] < maxmag
+    a2 = data[mag_g] > minmag
+    a1 &= a2
+    data = data[a1]
+    gc.collect()
 
     if ext is not None:
         data[mag_g] -= ext_g
