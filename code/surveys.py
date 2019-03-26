@@ -19,7 +19,7 @@ surveys = odict([
          maxmag=23.5)),
     ('PS1',
      dict(
-         mag='%sFPSFMAG',  # '%sPSFMAG',
+         mag='%sFPSFMAG_SFD',  # '%sPSFMAG',
          ext=None,  # 'EXTSFD_%s',
          data_dir='/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/',  # '/data/des40.b/data/pan-starrs/dr1/healpix/',
          fracdet=None,  # '/home/s1/smau/projects/panstarrs/simple_v3/panstarrs_pseudo_fracdet.fits.gz',
