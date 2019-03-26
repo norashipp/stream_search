@@ -10,6 +10,9 @@ import pylab as plt
 import scipy.ndimage as nd
 from matplotlib.path import Path
 
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+
 from utils import load_infiles
 from ugali.utils import healpix
 from ugali.analysis.isochrone import factory as isochrone_factory
@@ -70,6 +73,18 @@ if __name__ == '__main__':
     print "Reading catatogs..."
     dirname = surveys.surveys[survey]['data_dir']
     filenames = sorted(glob.glob(dirname + '/*.fits'))[:]
+
+    if survey == 'PS1':
+        pix = []
+        for f in filenames:
+            pix.append(int(f[-10:-5]))
+        ang = hp.pix2ang(32, pix, nest=False, lonlat=True)
+        c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
+        b = c.galactic.b.deg
+        BMIN = 5
+        idx = np.abs(b) > BMIN
+        filenames = np.asarray(filenames)[idx]
+
     data = load_infiles(filenames, columns=columns, multiproc=8)
 
     # Select magnitude range
