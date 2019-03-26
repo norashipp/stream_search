@@ -32,9 +32,9 @@ def select_isochrone(mag_g, mag_r, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[
 
     mk = mkpol(mu, age, z, dmu, C, E)
     pth = Path(mk)
-    cm = np.vstack([data[mag_g] - data[mag_r], data[mag_g] - mu]).T
+    cm = np.vstack([mag_g - mag_r, mag_g - mu]).T
     idx = pth.contains_points(cm)
-    return data[idx], idx
+    return idx
 
 
 ##################
