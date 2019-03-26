@@ -7,7 +7,7 @@ import gc
 import fitsio
 import numpy as np
 import healpy as hp
-import pylab as plt
+# import pylab as plt
 import scipy.ndimage as nd
 from matplotlib.path import Path
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         idx = np.abs(b) > BMIN
         filenames = np.asarray(filenames)[idx]
 
-    data = load_infiles(filenames, columns=columns, multiproc=8)
+    data = load_infiles(filenames, columns=columns, multiproc=16)
     gc.collect()
 
     # Select magnitude range
@@ -94,6 +94,15 @@ if __name__ == '__main__':
     # data = data[(data[mag_g] < maxmag) & (data[mag_g] > minmag)]
     a1 = data[mag_g] < maxmag
     a2 = data[mag_g] > minmag
+    a1 &= a2
+    data = data[a1]
+    gc.collect()
+
+    mincolor = 0.
+    maxcolor = 1.
+    print "Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor)
+    a1 = data[mag_g] - data[mag_r] < maxcolor
+    a2 = data[mag_g] - data[mag_r] > mincolor
     a1 &= a2
     data = data[a1]
     gc.collect()
@@ -127,5 +136,5 @@ if __name__ == '__main__':
         print("  Writing fracdet...")
         f.write(fracdet, extname='fracdet', header=header)
     print("  Writing bins...")
-    f.write(modulus, extname='modulus', header={'dmu': dmu})
+    f.write(modulii, extname='modulus', header={'dmu': dmu})
     f.close()
