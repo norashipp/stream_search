@@ -107,7 +107,7 @@ if __name__ == '__main__':
     for i, mod in enumerate(modulii):
         print(" bin=%i: m-M = %.1f..." % (i, mod))
 
-        sel = filter_data.select_isochrone(data[mag_g], data[mag_r], mod, iso_params=[mod, age, z], C=[0.05, 0.1], E=2)
+        sel = filter_data.select_isochrone(data[mag_g], data[mag_r], iso_params=[mod, age, z], C=[0.05, 0.1], E=2)
         d = data[sel]
 
         if metal_poor:
