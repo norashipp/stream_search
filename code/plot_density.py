@@ -130,5 +130,5 @@ if __name__ == "__main__":
         for lon in [0, 180, -180]:
             print 'Plotting m-M = %.1f...' % mu
             data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-            smap = plot_density(data, bkg, pmax=92, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
+            smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
             plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
