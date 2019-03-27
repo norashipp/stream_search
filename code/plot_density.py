@@ -115,6 +115,7 @@ if __name__ == "__main__":
     movdir_labeled = '../plots/ps1_labeled/'
     hpxcube, fracdet, modulus = load_hpxcube(filename)
     for mu in modulus:
+        print 'Plotting m-M = %.1f...' %mu
         data, bkg = plot_density.prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
         plot_density(data, bkg, vmax=8, filename=movidr + 'density_ps1_%.2f.png' % mu)
         plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_labeled.png' % mu)
