@@ -83,7 +83,7 @@ def plot_streams(smap, mu, dmu=0.5, coords='cel', filename=None):
             else:
                 x, y = smap(mw_streams[stream].ra, mw_streams[stream].dec)
             smap.plot(x, y, '.', alpha=0.5)
-            plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x.min(), y.min()), color='c', fontsize=15)
+            plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x.min(), y.min()), color='navy', fontsize=20)
 
     if filename:
         plt.savefig(filename)
