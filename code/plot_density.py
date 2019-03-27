@@ -2,6 +2,7 @@ from __future__ import division
 
 import os
 import glob
+import subprocess
 
 import numpy as np
 from collections import OrderedDict as odict
@@ -64,21 +65,39 @@ def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0
     hpxmap = np.copy(hpxcube[:, i])
 
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
-    bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
+    # bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
+    bkg = None
     return data, bkg
 
 
-def plot_streams(smap, mu, filename=None):
+def plot_streams(smap, mu, dmu=0.5, coords='cel', filename=None):
     mw_streams = galstreams.MWStreams(verbose=False)
     for stream in mw_streams.keys():
         if stream in ['Her-Aq', 'EriPhe', 'Sgr-L10']:
             continue
         mu_stream = dist2mod(mw_streams[stream].Rhel[0])
-        if np.abs(mu - mu_stream) < 0.5:
+        if np.abs(mu - mu_stream) < dmu:
             # print stream, mw_streams[stream].ra.max() - mw_streams[stream].ra.min(), mw_streams[stream].dec.max(), mw_streams[stream].dec.min()
+            if coords == 'gal':
+                x, y = smap(mw_streams[stream].l, mw_streams[stream].b)
+            else:
+                x, y = smap(mw_streams[stream].ra, mw_streams[stream].dec)
+            smap.plot(x, y, '.', alpha=0.5)
+            plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x.min(), y.min()), color='c', fontsize=15)
+
+    if filename:
+        plt.savefig(filename)
+
+
+def plot_stream_list(smap, streams, coords='cel', filename=None):
+    mw_streams = galstreams.MWStreams(verbose=False)
+    for stream in streams:
+        if coords == 'gal':
+            x, y = smap(mw_streams[stream].l, mw_streams[stream].b)
+        else:
             x, y = smap(mw_streams[stream].ra, mw_streams[stream].dec)
-            smap.plot(x, y, '.r', alpha=0.5)
-            plt.gca().annotate(mw_streams[stream].name, (x.min(), y.min()), color='b', fontsize=15)
+        smap.plot(x, y, '.', alpha=0.5)
+        plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x.min(), y.min()), color='b', fontsize=15)
 
     if filename:
         plt.savefig(filename)
@@ -117,18 +136,37 @@ def dist2mod(distance):
     return 5. * (np.log10(np.array(distance) * 1.e3) - 1.)
 
 
-def make_movie():
-    pass
+def make_movie(infiles, outfile=None, delay=40, queue='local'):
+    print("Making movie...")
+    infiles = np.atleast_1d(infiles)
+    if not len(infiles):
+        msg = "No input files found"
+        raise ValueError(msg)
+
+    infiles = ' '.join(infiles)
+    if not outfile:
+        outfile = infiles[0].replace('.png', '.gif')
+    cmd = 'convert -delay %i -quality 100 %s %s' % (delay, infiles, outfile)
+    if queue != 'local':
+        cmd = 'csub -q %s ' % (queue) + cmd
+    print(cmd)
+    subprocess.check_call(cmd, shell=True)
 
 
 if __name__ == "__main__":
-    filename = 'iso_hpxcube_ps1.fits.gz'
-    movdir = '../plots/ps1/'
-    movdir_labeled = '../plots/ps1_labeled/'
+    plot_pretty(figsize=(18,14))
+    filename = '../data/iso_hpxcube_ps1.fits.gz'
+    movdir = '../plots/galactic_cap/'
+    movdir_labeled = '../plots/galactic_cap/labeled/'
     hpxcube, fracdet, modulus = load_hpxcube(filename)
-    for mu in modulus:
-        for lon in [0, 180, -180]:
-            print 'Plotting m-M = %.1f...' % mu
-            data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-            smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
-            plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
+    for mu in modulus[:-16]:
+        # for lon in [0, 180, -180]:
+        #     print 'Plotting m-M = %.1f...' % mu
+        #     data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
+        #     smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
+        #     plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
+
+        print 'Plotting m-M = %.1f...' % mu
+        data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
+        smap = plot_density(data, bkg, vmax=10, center=(0, -90), proj='ortho', coords='gal', filename=movdir + 'density_ps1_cap_%.2f.png' % (mu))
+        plot_streams(smap, mu, coords='gal', filename=movdir_labeled + 'density_ps1_cap_%.2f_labeled.png' % (mu))
