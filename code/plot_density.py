@@ -105,6 +105,14 @@ def plot_density(data, bkg, coords='cel', filename=None, **kwargs):
     return smap
 
 
+def mod2dist(distance_modulus):
+    return 10**(distance_modulus / 5. + 1.) / 1e3
+
+
+def dist2mod(distance):
+    return 5. * (np.log10(np.array(distance) * 1.e3) - 1.)
+
+
 def make_movie():
     pass
 
@@ -115,7 +123,7 @@ if __name__ == "__main__":
     movdir_labeled = '../plots/ps1_labeled/'
     hpxcube, fracdet, modulus = load_hpxcube(filename)
     for mu in modulus:
-        print 'Plotting m-M = %.1f...' %mu
+        print 'Plotting m-M = %.1f...' % mu
         data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
         smap = plot_density(data, bkg, vmax=8, filename=movdir + 'density_ps1_%.2f.png' % mu)
         plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_labeled.png' % mu)
