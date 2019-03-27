@@ -236,7 +236,8 @@ def mask_plane(nside=256, bmax=25):
     ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
     c = SkyCoord(ra, dec, frame='icrs', unit='deg')
     b = c.galactic.b.deg
-    mask[(np.abs(b) < bmax)] = True
+    l = c.galactic.l.deg
+    mask[(np.abs(b) < bmax)] = True # # | ((np.abs(b) < bmax + 20) & (np.abs(l) < 60))
     return mask
 
 
@@ -284,9 +285,9 @@ def degrade(nside, hpxmap):
     return data
 
 
-def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, degrade=None, mask_kw=dict()):
+def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask_kw=dict()):
     nside = hp.get_nside(hpxmap)
-    mask = (fracdet < fracmin) | make_mask(nside, **mask_kw)
+    mask = (fracdet < fracmin) | (hpxmap > np.percentile(hpxmap, clip)) | make_mask(nside, **mask_kw)
     data = np.ma.array(hpxmap, mask=mask, fill_value=np.nan)
     data /= fracdet
     return data

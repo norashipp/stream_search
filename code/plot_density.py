@@ -23,11 +23,12 @@ import ugali.utils.healpix as uhp
 import galstreams
 
 import streamlib
+reload(streamlib)
 
 import surveys
 
 
-def plot_pretty(dpi=175, fontsize=15, labelsize=15):
+def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8)):
     # import pyplot and set some parameters to make plots prettier
 
     plt.rc('savefig', dpi=dpi)
@@ -37,6 +38,7 @@ def plot_pretty(dpi=175, fontsize=15, labelsize=15):
     plt.rc('xtick.minor', pad=5)
     plt.rc('ytick.major', pad=5)
     plt.rc('ytick.minor', pad=5)
+    plt.rc('figure', figsize=figsize)
 
     mpl.rcParams['xtick.labelsize'] = labelsize
     mpl.rcParams['ytick.labelsize'] = labelsize
@@ -57,11 +59,11 @@ def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
     return hpxcube, fracdet, modulus
 
 
-def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, sigma=0.2, **mask_kw):
+def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0.2, **mask_kw):
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
-    data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, mask_kw=mask_kw)
+    data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
     return data, bkg
 
@@ -82,7 +84,7 @@ def plot_streams(smap, mu, filename=None):
         plt.savefig(filename)
 
 
-def plot_density(data, bkg, coords='cel', filename=None, **kwargs):
+def plot_density(data, bkg, coords='cel', center=(0, 0), proj='mbtfpq', filename=None, **kwargs):
     defaults = dict(cmap='gray_r', xsize=400, smooth=0.2)
     setdefaults(kwargs, defaults)
 
@@ -92,12 +94,14 @@ def plot_density(data, bkg, coords='cel', filename=None, **kwargs):
     galpix = hp.ang2pix(nside, *gal2cel(lon, lat), lonlat=True)
 
     plt.figure()
-    smap = skymap.Skymap(projection='mbtfpq', lon_0=0, lat_0=0)
+    smap = skymap.Skymap(projection=proj, lon_0=center[0], lat_0=center[1], celestial=False)
 
     if coords == 'gal':
-        smap.draw_hpxmap((data - bkg)[galpix], **kwargs)
+        # smap.draw_hpxmap((data - bkg)[galpix], **kwargs)
+        smap.draw_hpxmap(data[galpix], **kwargs)
     else:
-        smap.draw_hpxmap((data - bkg), **kwargs)
+        # smap.draw_hpxmap((data - bkg), **kwargs)
+        smap.draw_hpxmap(data, **kwargs)
 
     if filename:
         plt.savefig(filename)
@@ -123,7 +127,8 @@ if __name__ == "__main__":
     movdir_labeled = '../plots/ps1_labeled/'
     hpxcube, fracdet, modulus = load_hpxcube(filename)
     for mu in modulus:
-        print 'Plotting m-M = %.1f...' % mu
-        data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-        smap = plot_density(data, bkg, vmax=8, filename=movdir + 'density_ps1_%.2f.png' % mu)
-        plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_labeled.png' % mu)
+        for lon in [0, 180, -180]:
+            print 'Plotting m-M = %.1f...' % mu
+            data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
+            smap = plot_density(data, bkg, pmax=92, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
+            plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
