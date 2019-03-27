@@ -166,7 +166,7 @@ if __name__ == "__main__":
         #     smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
         #     plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
 
-        if os.path.exists(movdir_labeled + 'density_ps1_cap_%.2f.png' % (mu)):
+        if os.path.exists(movdir_labeled + 'density_ps1_cap_%.2f_labeled.png' % (mu)):
             print 'Skipping m-M = %.1f' % mu
             continue
         print 'Plotting m-M = %.1f...' % mu
