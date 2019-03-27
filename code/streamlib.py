@@ -55,12 +55,12 @@ FRACMIN = 0.5
 SIGMA = 0.2
 NSIDE = 256
 
-try:
-    POINTINGS = np.genfromtxt('../data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
-    # POINTINGS = np.genfromtxt('../data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
-except:
-    POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
-    # POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
+# try:
+#     POINTINGS = np.genfromtxt('../data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
+#     # POINTINGS = np.genfromtxt('../data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
+# except:
+#     POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
+#     # POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
 
 
 class DESSkymapNGC288(DESSkymap):
