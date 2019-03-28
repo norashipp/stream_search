@@ -156,8 +156,8 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
     filename = '../data/iso_hpxcube_ps1_v1.fits.gz'
-    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap_v1/'
-    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap_v1/labeled/'
+    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/v1/'
+    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/v1/labeled/'
     coords = 'gal'
     center = (0, -90)
     hpxcube, fracdet, modulus = load_hpxcube(filename)
