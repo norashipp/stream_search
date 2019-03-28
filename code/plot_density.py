@@ -170,9 +170,10 @@ def plot_stream(stream):
 
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
-    filename = '../data/iso_hpxcube_ps1_v1.fits.gz'
-    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v1/'
-    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v1/labeled/'
+    version = 2
+    filename = '../data/iso_hpxcube_ps1_v%i.fits.gz' % version
+    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/' % version
+    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/labeled/' % version
     coords = 'cel'
     vmax = 8
 
