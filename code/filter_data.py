@@ -26,7 +26,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None):
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
     try:
-        iso = isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
+        iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu, z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
     except:
         iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu, z=z, dirname='/Users/nora/projects/proper_motions/data/ps1')
     c = iso.color
