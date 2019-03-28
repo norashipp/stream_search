@@ -119,7 +119,7 @@ if __name__ == '__main__':
         C = surveys.surveys[survey]['C']
         E = surveys.surveys[survey]['E']
         err = surveys.surveys[survey]['err']
-        gmin = 19.5 - (16.8 - mu)
+        gmin = 19.5 - (16.8 - mod)
         sel = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin)
         d = data[sel]
 
