@@ -5,19 +5,30 @@ from matplotlib.path import Path
 
 from ugali.analysis.isochrone import factory as isochrone_factory
 
+import surveys
+
 
 ###########
 # CMD CUT #
 ###########
 
-def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4, err_type='median'):
+def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None):
+    if err == None:
+        print 'Using PS1 err!'
+        err = surveys.surveys['PS1']['err']
     """ Builds ordered polygon for masking """
 
-    err = lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419)  # median
+    # if survey == 'DES':
+    #     err = lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419)  # median
+    # elif survey == 'PS1':
+    #     err = lambda x: 0.00363355415 + np.exp((x - 23.9127145) / 1.09685211)
     # err changes between surveys!
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
-    iso = isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
+    try:
+        iso = isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
+    except:
+        iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu, z=z, dirname='/Users/nora/projects/proper_motions/data/ps1')
     c = iso.color
     m = iso.mag
     mnear = m + mu - dmu / 2.
@@ -27,14 +38,22 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4, err_type='median'
     return np.c_[C, M]
 
 
-def select_isochrone(mag_g, mag_r, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2):
+def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None):
     mu, age, z = iso_params
 
-    mk = mkpol(mu, age, z, dmu, C, E)
+    mk = mkpol(mu=mu, age=age, z=z, dmu=dmu, C=C, E=E, err=err)
     pth = Path(mk)
     cm = np.vstack([mag_g - mag_r, mag_g - mu]).T
     idx = pth.contains_points(cm)
+    if gmin:
+        idx &= (mag_g > gmin)
     return idx
+
+
+def calculate_err():
+    # binned statistic median
+    # curve fit func
+    pass
 
 
 ##################
