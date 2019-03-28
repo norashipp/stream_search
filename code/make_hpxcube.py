@@ -56,8 +56,8 @@ if __name__ == '__main__':
     dmu = 0.1
     # modulii = np.arange(15, 20 + dmu, dmu)
     modulii = np.arange(surveys[survey]['modulii'][0], surveys[survey]['modulii'][1])
-    age = 12.5
-    z = 0.0001
+    age = 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
+    z = 0.0002
 
     metal_poor = False
     ###################

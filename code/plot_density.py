@@ -155,9 +155,11 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
 
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
-    filename = '../data/iso_hpxcube_ps1.fits.gz'
-    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/'
-    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/labeled/'
+    filename = '../data/iso_hpxcube_ps1_v1.fits.gz'
+    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap_v1/'
+    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap_v1/labeled/'
+    coords = 'gal'
+    center = (0, -90)
     hpxcube, fracdet, modulus = load_hpxcube(filename)
     for mu in modulus[:-16]:
         # for lon in [0, 180, -180]:
@@ -171,5 +173,6 @@ if __name__ == "__main__":
             continue
         print 'Plotting m-M = %.1f...' % mu
         data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-        smap = plot_density(data, bkg, vmax=10, center=(0, -90), proj='ortho', coords='gal', filename=movdir + 'density_ps1_cap_%.2f.png' % (mu))
-        plot_streams(smap, mu, coords='gal', filename=movdir_labeled + 'density_ps1_cap_%.2f_labeled.png' % (mu))
+        smap = plot_density(data, bkg, vmax=12, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
+                            filename=movdir + 'density_ps1_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
+        plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
