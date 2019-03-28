@@ -12,7 +12,8 @@ surveys = odict([
          maxmag=23.5,
          err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419),
          C=[0.05, 0.1],
-         E=2.)),
+         E=2.,
+         modulii=[15, 20])),
     ('DES_DR1',
      dict(
          mag='WAVG_MAG_PSF_%s_DERED',
@@ -23,7 +24,8 @@ surveys = odict([
          maxmag=23.5,
          err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419),
          C=[0.05, 0.1],
-         E=2.)),
+         E=2.,
+         modulii=[15, 20])),
     ('PS1',
      dict(
          mag='%sFPSFMAG_SFD',  # '%sPSFMAG',
@@ -34,7 +36,8 @@ surveys = odict([
          maxmag=21.5,
          err=lambda x: 0.00363355415 + np.exp((x - 23.9127145) / 1.09685211),
          C=[0.05, 0.05],
-         E=1.)),
+         E=1.,
+         modulii=[13, 18])),
     ('SDSS_DR13',  # star galaxy separation?
      dict(
          mag='MAG_PSF_SFD_%s',

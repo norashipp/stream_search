@@ -18,7 +18,7 @@ from utils import load_infiles
 from ugali.utils import healpix
 from ugali.analysis.isochrone import factory as isochrone_factory
 
-import surveys
+from surveys import surveys
 import filter_data
 
 
@@ -36,34 +36,35 @@ if __name__ == '__main__':
     nside = args.nside
 
     survey = args.survey
-    mag = surveys.surveys[survey]['mag']
+    mag = surveys[survey]['mag']
     mag_g = mag % 'G'
     mag_r = mag % 'R'
     mag_i = mag % 'I'
-    ext = surveys.surveys[survey]['ext']
+    ext = surveys[survey]['ext']
     if ext is not None:
-        ext = surveys.surveys[survey]['ext']
+        ext = surveys[survey]['ext']
         ext_g = ext % 'G'
         ext_r = ext % 'R'
         ext_i = ext % 'I'
         # fix this, not relevant for now
-    minmag = surveys.surveys[survey]['minmag']
-    maxmag = surveys.surveys[survey]['maxmag']
+    minmag = surveys[survey]['minmag']
+    maxmag = surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try mp search
     columns = ['RA', 'DEC', mag_g, mag_r]
 
     ###################
     dmu = 0.1
-    modulii = np.arange(15, 20 + dmu, dmu)
-    age = 12.0
-    z = 0.0002
+    # modulii = np.arange(15, 20 + dmu, dmu)
+    modulii = np.arange(surveys[survey]['modulii'][0], surveys[survey]['modulii'][1])
+    age = 12.5
+    z = 0.0001
 
     metal_poor = False
     ###################
 
-    if surveys.surveys[survey]['fracdet'] is not None:
+    if surveys[survey]['fracdet'] is not None:
         print "Reading coverage fraction..."
-        frac = fitsio.read(surveys.surveys[survey]['fracdet'])
+        frac = fitsio.read(surveys[survey]['fracdet'])
         scale = (4096 / nside)**2
         pix = hp.nest2ring(nside, frac['PIXEL'] // scale)
 
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         fracdet /= scale
 
     print "Reading catatogs..."
-    dirname = surveys.surveys[survey]['data_dir']
+    dirname = surveys[survey]['data_dir']
     filenames = sorted(glob.glob(dirname + '/*.fits'))[:]
 
     if survey == 'PS1':
@@ -116,9 +117,9 @@ if __name__ == '__main__':
     for i, mod in enumerate(modulii):
         print(" bin=%i: m-M = %.1f..." % (i, mod))
 
-        C = surveys.surveys[survey]['C']
-        E = surveys.surveys[survey]['E']
-        err = surveys.surveys[survey]['err']
+        C = surveys[survey]['C']
+        E = surveys[survey]['E']
+        err = surveys[survey]['err']
         gmin = 19.5 - (16.8 - mod)
         sel = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin)
         d = data[sel]
@@ -136,7 +137,7 @@ if __name__ == '__main__':
     f = fitsio.FITS(args.filename, 'rw', clobber=True)
     print("  Writing hpxcube...")
     f.write(hpxcube, header=header, extname='hpxcube')
-    if surveys.surveys[survey]['fracdet'] is not None:
+    if surveys[survey]['fracdet'] is not None:
         print("  Writing fracdet...")
         f.write(fracdet, extname='fracdet', header=header)
     print("  Writing bins...")
