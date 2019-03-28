@@ -156,11 +156,16 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
     filename = '../data/iso_hpxcube_ps1_v1.fits.gz'
-    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/v1/'
-    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1_cap/v1/labeled/'
+    movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v1/'
+    movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v1/labeled/'
     coords = 'gal'
-    center = (0, -90)
+
+    stream = 'Lethe'
+    mw_streams = galstreams.MWStreams(verbose=False)
+    center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
+    # center = (0, -90)
     hpxcube, fracdet, modulus = load_hpxcube(filename)
+
     for mu in modulus[:-16]:
         # for lon in [0, 180, -180]:
         #     print 'Plotting m-M = %.1f...' % mu
@@ -168,11 +173,11 @@ if __name__ == "__main__":
         #     smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
         #     plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
 
-        if os.path.exists(movdir_labeled + 'density_ps1_cap_%.2f_labeled.png' % (mu)):
+        if os.path.exists(movdir_labeled + 'density_lethe_%.2f_labeled.png' % (mu)):
             print 'Skipping m-M = %.1f' % mu
             continue
         print 'Plotting m-M = %.1f...' % mu
         data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
         smap = plot_density(data, bkg, vmax=10, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
-                            filename=movdir + 'density_ps1_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
-        plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
+                            filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
+        plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
