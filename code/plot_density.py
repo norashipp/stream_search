@@ -195,7 +195,7 @@ if __name__ == "__main__":
             continue
         print 'Plotting m-M = %.1f...' % mu
         # data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-        data, bkg = plot_density.prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
+        data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
         smap = plot_density(data, bkg, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
                             filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
         plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
