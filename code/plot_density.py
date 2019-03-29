@@ -179,8 +179,8 @@ if __name__ == "__main__":
     filename = '../data/iso_hpxcube_ps1_v%i.fits.gz' % version
     movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/' % version
     movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/labeled/' % version
-    coords = 'cel'
-    vmin, vmax = -4, 2
+    coords = 'gal'
+    vmin, vmax = None, 6
 
     stream = 'Lethe'
     mw_streams = galstreams.MWStreams(verbose=False)
@@ -189,19 +189,12 @@ if __name__ == "__main__":
     hpxcube, fracdet, modulus = load_hpxcube(filename)
 
     for mu in modulus[:-16]:
-        # for lon in [0, 180, -180]:
-        #     print 'Plotting m-M = %.1f...' % mu
-        #     data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-        #     smap = plot_density(data, bkg, vmax=15, center=(lon, 30), filename=movdir + 'density_ps1_%.2f_%i.png' % (mu, lon))
-        #     plot_streams(smap, mu, filename=movdir_labeled + 'density_ps1_%.2f_%i_labeled.png' % (mu, lon))
-
         if os.path.exists(movdir_labeled + 'density_lethe_%.2f_labeled.png' % (mu)):
             print 'Skipping m-M = %.1f' % mu
             continue
         print 'Plotting m-M = %.1f...' % mu
-        # data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
-        bkg = fit_background(data, center=center, sigma=0.2)
-        smap = plot_density(data, bkg, vmin=vmin, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
-                            filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f_residual.png' % (coords, center[0], center[1], mu))
+        # bkg = fit_background(data, center=center, sigma=0.2)
+        smap = plot_density(data, 0, vmin=vmin, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
+                            filename=movdir + 'density_ps1_cap_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
         # plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
