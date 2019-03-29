@@ -180,7 +180,7 @@ if __name__ == "__main__":
     movdir = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/' % version
     movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/ps1/v%i/labeled/' % version
     coords = 'cel'
-    vmax = 8
+    vmin, vmax = -4, 2
 
     stream = 'Lethe'
     mw_streams = galstreams.MWStreams(verbose=False)
@@ -202,6 +202,6 @@ if __name__ == "__main__":
         # data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
         bkg = fit_background(data, center=center, sigma=0.2)
-        smap = plot_density(data, bkg, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
+        smap = plot_density(data, bkg, vmin=vmin, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
                             filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f_residual.png' % (coords, center[0], center[1], mu))
         # plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
