@@ -182,17 +182,17 @@ if __name__ == "__main__":
     coords = 'gal'
     vmin, vmax = None, 6
 
-    stream = 'Lethe'
-    mw_streams = galstreams.MWStreams(verbose=False)
-    center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
-    # center = (0, -90)
+    # stream = 'Lethe'
+    # mw_streams = galstreams.MWStreams(verbose=False)
+    # center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
+    center = (0, -90)
     hpxcube, fracdet, modulus = load_hpxcube(filename)
 
     for mu in modulus[:-16]:
         if os.path.exists(movdir_labeled + 'density_lethe_%.2f_labeled.png' % (mu)):
             print 'Skipping m-M = %.1f' % mu
             continue
-        print 'Plotting m-M = %.1f...' % mu
+        print 'Plotting m-M = %.1f...' % mu 
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
         # bkg = fit_background(data, center=center, sigma=0.2)
         smap = plot_density(data, 0, vmin=vmin, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
