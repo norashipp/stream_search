@@ -66,8 +66,13 @@ def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0
 
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
-    bkg = None
-    return data, bkg
+    # bkg = None
+    return data
+
+
+def fit_background(data, center=(0, 0), coords='cel', sigma=0.2, percent=[2, 95], deg=5):
+    bkg = streamlib.fit_bkg_poly(data, center=center, coords=coords, sigma=sigma, percent=percent, deg=deg)
+    return bkg
 
 
 def plot_streams(smap, mu, dmu=0.5, coords='cel', filename=None):
@@ -116,11 +121,11 @@ def plot_density(data, bkg, coords='cel', center=(0, 0), proj='mbtfpq', filename
     smap = skymap.Skymap(projection=proj, lon_0=center[0], lat_0=center[1], celestial=False)
 
     if coords == 'gal':
-        # smap.draw_hpxmap((data - bkg)[galpix], **kwargs)
-        smap.draw_hpxmap(data[galpix], **kwargs)
+        smap.draw_hpxmap((data - bkg)[galpix], **kwargs)
+        # smap.draw_hpxmap(data[galpix], **kwargs)
     else:
-        # smap.draw_hpxmap((data - bkg), **kwargs)
-        smap.draw_hpxmap(data, **kwargs)
+        smap.draw_hpxmap((data - bkg), **kwargs)
+        # smap.draw_hpxmap(data, **kwargs)
 
     if filename:
         plt.savefig(filename)
@@ -153,7 +158,7 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
     subprocess.check_call(cmd, shell=True)
 
 
-def plot_stream(stream):
+def plot_stream(stream, hpxcube, fracdet, modulus):
     mw_streams = galstreams.MWStreams(verbose=False)
     center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
     mu = dist2mod(mw_streams[stream].Rhel[0])
@@ -195,7 +200,8 @@ if __name__ == "__main__":
             continue
         print 'Plotting m-M = %.1f...' % mu
         # data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, plane=True, center=True, sgr=False, bmax=25, cmax=40)
-        data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
+        data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
+        bkg = fit_background(data, center=center, sigma=0.2)
         smap = plot_density(data, bkg, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
-                            filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f.png' % (coords, center[0], center[1], mu))
-        plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))
+                            filename=movdir + 'density_ps1_lethe_%s_%i_%i_%.2f_residual.png' % (coords, center[0], center[1], mu))
+        # plot_streams(smap, mu, coords=coords, filename=movdir_labeled + 'density_ps1_lethe_%s_%i_%i_%.2f_labeled.png' % (coords, center[0], center[1], mu))

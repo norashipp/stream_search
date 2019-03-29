@@ -237,7 +237,7 @@ def mask_plane(nside=256, bmax=25):
     c = SkyCoord(ra, dec, frame='icrs', unit='deg')
     b = c.galactic.b.deg
     l = c.galactic.l.deg
-    mask[(np.abs(b) < bmax)] = True # # | ((np.abs(b) < bmax + 20) & (np.abs(l) < 60))
+    mask[(np.abs(b) < bmax)] = True  # | ((np.abs(b) < bmax + 20) & (np.abs(l) < 60))
     return mask
 
 
@@ -293,7 +293,7 @@ def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask
     return data
 
 
-def fit_bkg_poly(data, sigma=0.1, percent=[2, 95], deg=5):
+def fit_bkg_poly(data, center=(0, 0), coords='cel', sigma=0.1, percent=[2, 95], deg=5):
     """ Fit foreground/background with a polynomial """
     nside = hp.get_nside(data.mask)
     lon, lat = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
@@ -304,7 +304,11 @@ def fit_bkg_poly(data, sigma=0.1, percent=[2, 95], deg=5):
     data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False),
                        mask=data.mask)
 
-    smap = skymap.core.McBrydeSkymap(parallels=False, meridians=False)
+    smap = skymap.Skymap(parallels=False, meridians=False, lon_0=center[0], lat_0=center[1])
+
+    if coords == 'gal':
+        galpix = hp.ang2pix(nside, *gal2cel(lon, lat), lonlat=True)
+        data = data[galpix]
 
     sel = ~data.mask
     x, y = smap(lon[sel], lat[sel])
