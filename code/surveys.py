@@ -38,6 +38,18 @@ surveys = odict([
          C=[0.05, 0.05],
          E=1.,
          modulii=[13, 18])),
+    ('DECaLS',
+     dict(
+         mag='MAG_%s',
+         ext=None,
+         data_dir='/data/des40.b/data/decals/dr7/skim/',
+         fracdet='/data/des40.b/data/nshipp/projects/stream_search/data/decals_dr7_pseudo_fracdet.fits.gz',
+         minmag=16.,
+         maxmag=23.5,
+         err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419), 
+         C=[0.05, 0.1],
+         E=2.,
+         modulii=[14, 20])),    
     ('SDSS_DR13',  # star galaxy separation?
      dict(
          mag='MAG_PSF_SFD_%s',
