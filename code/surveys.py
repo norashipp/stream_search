@@ -42,7 +42,7 @@ surveys = odict([
      dict(
          mag='MAG_SFD_%s',
          ext=None,
-         data_dir='data/des40.b/data/decals/dr8/south_skim/', # '/data/des40.b/data/decals/dr7/skim/',
+         data_dir='/data/des40.b/data/decals/dr8/south_skim/', # '/data/des40.b/data/decals/dr7/skim/',
          fracdet=None, # '/data/des40.b/data/nshipp/projects/stream_search/data/decals_dr7_pseudo_fracdet.fits.gz',
          minmag=16.,
          maxmag=23.5,
