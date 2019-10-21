@@ -12,9 +12,9 @@ import surveys
 # CMD CUT #
 ###########
 
-def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None):
+def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
     if err == None:
-        print 'Using PS1 err!'
+        print('Using PS1 err!')
         err = surveys.surveys['PS1']['err']
     """ Builds ordered polygon for masking """
 
@@ -25,23 +25,39 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None):
     # err changes between surveys!
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
-    try:
-        iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu, z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
-    except:
-        iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu, z=z, dirname='/Users/nora/projects/proper_motions/data/ps1')
+    if survey == 'PS1':
+        try:
+            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
+                                    z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
+        except:
+            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
+                                    z=z, dirname='/Users/nora/.ugali/isochrones/ps1/dotter2008')
+    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS']:
+        try:
+            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
+                                       z=z, dirname='/Users/nora/.ugali/isochrones/des/dotter2008')
+        except:
+            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
+                                   z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
+
+
     c = iso.color
     m = iso.mag
     mnear = m + mu - dmu / 2.
     mfar = m + mu + dmu / 2.
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
     M = np.r_[m, m[::-1]]
+    if survey == 'DECaLS':
+        # temporary, weird
+        C += 0.1
+        M += 0.2
     return np.c_[C, M]
 
 
-def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None):
+def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
     mu, age, z = iso_params
 
-    mk = mkpol(mu=mu, age=age, z=z, dmu=dmu, C=C, E=E, err=err)
+    mk = mkpol(mu=mu, age=age, z=z, dmu=dmu, C=C, E=E, err=err, survey=survey)
     pth = Path(mk)
     cm = np.vstack([mag_g - mag_r, mag_g - mu]).T
     idx = pth.contains_points(cm)
@@ -77,5 +93,6 @@ def locus(mag_g, mag_r, mag_i, p=None):
 
 def select_metal_poor(mag_g, mag_r, mag_i, survey='DES_Y3A2', dmin=0.02, dmax=0.06, p=None):
     stellar_locus = locus(data, p=p)
-    idx = (mag_r - mag_i > stellar_locus + dmin) & (mag_r - mag_i < stellar_locus + dmax)
+    idx = (mag_r - mag_i > stellar_locus +
+           dmin) & (mag_r - mag_i < stellar_locus + dmax)
     return data[idx], idx
