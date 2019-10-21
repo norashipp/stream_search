@@ -585,7 +585,7 @@ def draw_stream_ellipse(smap, stream, coord='cel', radius=1.0, offset=0., label=
     # ells = [Ellipse((x[i], y[i]), width=widths[i], height=heights[i], angle=0, fc=None, ec='red', lw=1, fill=False, ls='--') for i in range(len(ra))]
     try:
         observed = pointings['f6']
-        print observed
+        print(observed)
     except:
         observed = np.ones_like(ra)
 

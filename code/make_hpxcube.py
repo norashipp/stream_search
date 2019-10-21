@@ -51,6 +51,8 @@ if __name__ == '__main__':
     maxmag = surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try mp search
     columns = ['RA', 'DEC', mag_g, mag_r]
+    if stargal is not None:
+        columns.append(surveys[survey]['stargal'])    
 
     ###################
     dmu = 0.1
@@ -113,6 +115,11 @@ if __name__ == '__main__':
         data[mag_r] -= ext_r
         data[mag_i] -= ext_i
 
+    if stargal is not None:
+        a1 = data[surveys[survey]['stargal']] <= surveys[survey]['stargal_cut']
+        data = data[a1]
+        gc.collect()
+        
     hpxcube = np.zeros((hp.nside2npix(nside), len(modulii)))
     for i, mod in enumerate(modulii):
         print(" bin=%i: m-M = %.1f..." % (i, mod))

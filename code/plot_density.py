@@ -3,6 +3,7 @@ from __future__ import division
 import os
 import glob
 import subprocess
+from importlib import reload
 
 import numpy as np
 from collections import OrderedDict as odict
@@ -27,6 +28,7 @@ import streamlib
 reload(streamlib)
 
 import surveys
+reload(surveys)
 
 
 def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8)):
@@ -52,11 +54,16 @@ def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
     hpxcube = f['HPXCUBE'].read()
     try:
         fracdet = f['FRACDET'].read()
+        print('fracdet test', np.sum(fracdet > 0.5))
     except:
+        print('Skipping fracdet...')
         fracdet = np.zeros_like(hpxcube[:, 0])
         fracdet[np.where(hpxcube[:, 0] > 0)] = 1
-    modulus = f['MODULUS'].read()
-
+    try:
+        modulus = f['MODULUS'].read()
+    except:
+        print('Error reading modulus...')
+        modulus = np.array([16.])
     return hpxcube, fracdet, modulus
 
 
@@ -88,7 +95,7 @@ def plot_streams(smap, mu, dmu=0.5, coords='cel', filename=None):
             else:
                 x, y = smap(mw_streams[stream].ra, mw_streams[stream].dec)
             smap.plot(x, y, '.', alpha=0.5)
-            plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x.min(), y.min()), color='navy', fontsize=20)
+            plt.gca().annotate(mw_streams[stream].name.replace('_', ' '), (x[0], y[0]), color='navy', fontsize=20)
 
     if filename:
         plt.savefig(filename)
@@ -190,9 +197,9 @@ if __name__ == "__main__":
 
     for mu in modulus[:-16]:
         if os.path.exists(movdir_labeled + 'density_lethe_%.2f_labeled.png' % (mu)):
-            print 'Skipping m-M = %.1f' % mu
+            print('Skipping m-M = %.1f' % mu)
             continue
-        print 'Plotting m-M = %.1f...' % mu 
+        print('Plotting m-M = %.1f...' % mu) 
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40)
         # bkg = fit_background(data, center=center, sigma=0.2)
         smap = plot_density(data, 0, vmin=vmin, vmax=vmax, center=(center[0], center[1]), proj='ortho', coords=coords, xsize=600,
