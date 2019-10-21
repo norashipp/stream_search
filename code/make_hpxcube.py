@@ -36,6 +36,7 @@ if __name__ == '__main__':
     nside = args.nside
 
     survey = args.survey
+    print('Filtering %s...' %survey)
     mag = surveys[survey]['mag']
     mag_g = mag % 'G'
     mag_r = mag % 'R'
@@ -119,7 +120,7 @@ if __name__ == '__main__':
         a1 = data[surveys[survey]['stargal']] <= surveys[survey]['stargal_cut']
         data = data[a1]
         gc.collect()
-        
+
     hpxcube = np.zeros((hp.nside2npix(nside), len(modulii)))
     for i, mod in enumerate(modulii):
         print(" bin=%i: m-M = %.1f..." % (i, mod))
