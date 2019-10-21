@@ -42,6 +42,8 @@ if __name__ == '__main__':
     mag_r = mag % 'R'
     mag_i = mag % 'I'
     ext = surveys[survey]['ext']
+    stargal = surveys[survey]['stargal']
+    stargal_cut = surveys[survey]['stargal_cut']
     if ext is not None:
         ext = surveys[survey]['ext']
         ext_g = ext % 'G'
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try mp search
     columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
-        columns.append(surveys[survey]['stargal'])    
+        columns.append(stargal)    
 
     ###################
     dmu = 0.1
@@ -117,8 +119,8 @@ if __name__ == '__main__':
         data[mag_i] -= ext_i
 
     if stargal is not None:
-        print('Selecting: %s <= %i' %(surveys[survey]['stargal'], surveys[survey]['stargal_cut']))
-        a1 = data[surveys[survey]['stargal']] <= surveys[survey]['stargal_cut']
+        print('Selecting: %s <= %i' %(stargal, stargal_cut))
+        a1 = data[stargal] <= stargal_cut
         data = data[a1]
         gc.collect()
 
