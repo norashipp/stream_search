@@ -66,7 +66,7 @@ if __name__ == '__main__':
     ###################
 
     if surveys[survey]['fracdet'] is not None:
-        print "Reading coverage fraction..."
+        print("Reading coverage fraction...")
         frac = fitsio.read(surveys[survey]['fracdet'])
         scale = (4096 / nside)**2
         pix = hp.nest2ring(nside, frac['PIXEL'] // scale)
@@ -75,8 +75,8 @@ if __name__ == '__main__':
         np.add.at(fracdet, pix, frac['SIGNAL'])
         fracdet /= scale
 
-    print "Reading catatogs..."
     dirname = surveys[survey]['data_dir']
+    print("Reading catalogs from %s..." %dirname)
     filenames = sorted(glob.glob(dirname + '/*.fits'))[:]
 
     if survey == 'PS1':
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     gc.collect()
 
     # Select magnitude range
-    print "Selecting: %.1f < %s < %.1f" % (minmag, mag_g, maxmag)
+    print("Selecting: %.1f < %s < %.1f" % (minmag, mag_g, maxmag))
     # data = data[(data[mag_g] < maxmag) & (data[mag_g] > minmag)]
     a1 = data[mag_g] < maxmag
     a2 = data[mag_g] > minmag
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     mincolor = 0.
     maxcolor = 1.
-    print "Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor)
+    print("Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor))
     a1 = data[mag_g] - data[mag_r] < maxcolor
     a2 = data[mag_g] - data[mag_r] > mincolor
     a1 &= a2
@@ -117,6 +117,7 @@ if __name__ == '__main__':
         data[mag_i] -= ext_i
 
     if stargal is not None:
+        print('Selecting: %s <= %i' %(surveys[survey]['stargal'], surveys[survey]['stargal_cut']))
         a1 = data[surveys[survey]['stargal']] <= surveys[survey]['stargal_cut']
         data = data[a1]
         gc.collect()
