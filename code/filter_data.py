@@ -26,20 +26,13 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
     if survey == 'PS1':
-        try:
-            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
-                                    z=z, dirname='/home/s1/kadrlica/.ugali/isochrones/ps1/dotter2008')
-        except:
-            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
-                                    z=z, dirname='/Users/nora/.ugali/isochrones/ps1/dotter2008')
+        iso = isochrone_factory(
+            'Dotter2008', survey='PS1', age=age, distance_modulus=mu, z=z)
     elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS']:
-        try:
-            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
-                                       z=z, dirname='/Users/nora/.ugali/isochrones/des/dotter2008')
-        except:
-            iso = isochrone_factory('Dotter2008', age=age, distance_modulus=mu,
-                                   z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
-
+        iso = isochrone_factory(
+            'Dotter2008', survey='DES', age=age, distance_modulus=mu, z=z)
+    else:
+        print('Survey error - update isochrones.')
 
     c = iso.color
     m = iso.mag
@@ -48,6 +41,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
     M = np.r_[m, m[::-1]]
     if survey == 'DECaLS':
+        print('Applying weird DECaLS isochrone adjustment...')
         # temporary, weird
         C += 0.1
         M += 0.2
