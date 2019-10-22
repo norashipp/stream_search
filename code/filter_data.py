@@ -40,11 +40,6 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     mfar = m + mu + dmu / 2.
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
     M = np.r_[m, m[::-1]]
-    if survey == 'DECaLS':
-        print('Applying weird DECaLS isochrone adjustment...')
-        # temporary, weird
-        C += 0.1
-        M += 0.2
     return np.c_[C, M]
 
 
