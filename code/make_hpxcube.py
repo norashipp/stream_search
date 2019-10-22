@@ -59,8 +59,9 @@ if __name__ == '__main__':
 
     ###################
     dmu = 0.1
-    # modulii = np.arange(15, 20 + dmu, dmu)
-    modulii = np.arange(surveys[survey]['modulii'][0], surveys[survey]['modulii'][1])
+    # moduli = np.arange(15, 20 + dmu, dmu)
+    moduli = np.arange(surveys[survey]['moduli'][0], surveys[survey]['moduli'][1]+dmu, dmu)
+    print('Moduli: ', moduli)
     age = 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
     z = 0.0002
 
@@ -124,8 +125,8 @@ if __name__ == '__main__':
         data = data[a1]
         gc.collect()
 
-    hpxcube = np.zeros((hp.nside2npix(nside), len(modulii)))
-    for i, mod in enumerate(modulii):
+    hpxcube = np.zeros((hp.nside2npix(nside), len(moduli)))
+    for i, mod in enumerate(moduli):
         print(" bin=%i: m-M = %.1f..." % (i, mod))
 
         C = surveys[survey]['C']
@@ -152,5 +153,5 @@ if __name__ == '__main__':
         print("  Writing fracdet...")
         f.write(fracdet, extname='fracdet', header=header)
     print("  Writing bins...")
-    f.write(modulii, extname='modulus', header={'dmu': dmu})
+    f.write(moduli, extname='modulus', header={'dmu': dmu})
     f.close()
