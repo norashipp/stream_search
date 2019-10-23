@@ -42,6 +42,9 @@ import results
 from streams import GLOBULARS, DWARFS, GALAXIES
 import elysian
 
+import galstreams
+import rotation_matrix
+
 DATADIR = os.path.join(dirname(realpath(__file__)), '../data')
 STREAMFILE = os.path.join(DATADIR, 'streams_v6.0.yaml')
 
@@ -70,7 +73,8 @@ class DESSkymapNGC288(DESSkymap):
     FIGSIZE = [3.4, 5]
 
     def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=1, height="3%", width="30%", bbox_to_anchor=(0, -0.05, 1, 1))
+        defaults = dict(loc=1, height="3%", width="30%",
+                        bbox_to_anchor=(0, -0.05, 1, 1))
         setdefaults(kwargs, defaults)
         super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
 
@@ -86,7 +90,8 @@ class DESSkymapNGC1261(DESSkymap):
     FIGSIZE = [3.4, 5]
 
     def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=3, height="4%", width="20%", bbox_to_anchor=(0, 0.05, 1, 1))
+        defaults = dict(loc=3, height="4%", width="20%",
+                        bbox_to_anchor=(0, 0.05, 1, 1))
         setdefaults(kwargs, defaults)
         super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
 
@@ -99,7 +104,8 @@ class DESSkymapNGC1851(DESSkymap):
     FIGSIZE = [3.4, 5]
 
     def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=4, height="5%", width="25%", bbox_to_anchor=(0, 0.05, 1, 1))
+        defaults = dict(loc=4, height="5%", width="25%",
+                        bbox_to_anchor=(0, 0.05, 1, 1))
         setdefaults(kwargs, defaults)
         super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
 
@@ -111,7 +117,8 @@ class DESSkymapNGC1904(DESSkymap):
     FIGSIZE = [3.4, 5]
 
     def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=4, height="5%", width="25%", bbox_to_anchor=(0, 0.05, 1, 1))
+        defaults = dict(loc=4, height="5%", width="25%",
+                        bbox_to_anchor=(0, 0.05, 1, 1))
         setdefaults(kwargs, defaults)
         super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
 
@@ -200,7 +207,8 @@ def mask_globulars(nside=256):
     for key, val in GLOBULARS.items():
         #radius = 10*val['rh']/60.0
         if 'jacobi' in val:
-            radius = np.degrees(np.arctan(1e-3 * val['jacobi'] / mod2dist(val['mod'])))
+            radius = np.degrees(
+                np.arctan(1e-3 * val['jacobi'] / mod2dist(val['mod'])))
         else:
             radius = 0.5
         #print(key, radius)
@@ -237,7 +245,8 @@ def mask_plane(nside=256, bmax=25):
     c = SkyCoord(ra, dec, frame='icrs', unit='deg')
     b = c.galactic.b.deg
     l = c.galactic.l.deg
-    mask[(np.abs(b) < bmax)] = True  # | ((np.abs(b) < bmax + 20) & (np.abs(l) < 60))
+    # | ((np.abs(b) < bmax + 20) & (np.abs(l) < 60))
+    mask[(np.abs(b) < bmax)] = True
     return mask
 
 
@@ -287,13 +296,35 @@ def degrade(nside, hpxmap):
 
 def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask_kw=dict()):
     nside = hp.get_nside(hpxmap)
-    mask = (fracdet < fracmin) | (hpxmap > np.percentile(hpxmap, clip)) | make_mask(nside, **mask_kw)
+    mask = (fracdet < fracmin) | (hpxmap > np.percentile(
+        hpxmap, clip)) | make_mask(nside, **mask_kw)
     data = np.ma.array(hpxmap, mask=mask, fill_value=np.nan)
     data /= fracdet
     return data
 
 
-def fit_bkg_poly(data, center=(0, 0), coords='cel', sigma=0.1, percent=[2, 95], deg=5):
+def get_rotmat(stream):
+    mw_streams = galstreams.MWStreams(verbose=False)
+    ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
+            (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
+
+    phi, theta, psi = results.euler_angles(
+        ends[0][0], ends[0][1], ends[1][0], ends[1][1])
+
+    R = results.create_matrix(phi, theta, psi)
+    return R
+
+
+def get_streampix(stream, data):
+    R = get_rotmat(stream)
+    nside = hp.get_nside(data)
+    lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
+    streampix = hp.ang2pix(
+        nside, *rotation_matrix.phi12_rotmat(lon, lat, np.linalg.inv(R)), lonlat=True)
+    return streampix
+
+
+def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0.1, percent=[2, 95], deg=5):
     """ Fit foreground/background with a polynomial """
     nside = hp.get_nside(data.mask)
     lon, lat = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
@@ -304,11 +335,19 @@ def fit_bkg_poly(data, center=(0, 0), coords='cel', sigma=0.1, percent=[2, 95], 
     data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False),
                        mask=data.mask)
 
-    smap = skymap.Skymap(parallels=False, meridians=False, lon_0=center[0], lat_0=center[1])
+    smap = skymap.Skymap(parallels=False, meridians=False,
+                         lon_0=center[0], lat_0=center[1])
 
     if coords == 'gal':
         galpix = hp.ang2pix(nside, *gal2cel(lon, lat), lonlat=True)
         data = data[galpix]
+    elif coords == 'stream':
+        if not coord_stream:
+            print('Need to input coord_stream!')
+        else:
+            print('Converting to %s coords.' %coord_stream)
+        streampix = get_streampix(coord_stream, data)
+        data = data[streampix]
 
     sel = ~data.mask
     x, y = smap(lon[sel], lat[sel])
@@ -542,7 +581,8 @@ def draw_stream_arc(smap, stream, coord='cel', offset=0, **kwargs):
 
 def get_stream_label_coords(smap, stream, coord='cel', offset=0, **kwargs):
     ends = np.array(stream['ends'])
-    lon, lat = smap.great_circle(ends[0][0], ends[0][1], ends[1][0], ends[1][1], 'short')
+    lon, lat = smap.great_circle(ends[0][0], ends[0][1], ends[
+                                 1][0], ends[1][1], 'short')
     lon, lat = apply_offset(lon, lat, offset)
     if coord == 'gal':
         lon, lat = cel2gal(lon, lat)
@@ -580,7 +620,8 @@ def draw_stream_ellipse(smap, stream, coord='cel', radius=1.0, offset=0., label=
     x, y = smap(ra, dec)
     ra_label, dec_label = apply_offset(ra, dec, offset=offset)
     # ra_label, dec_label = ra, dec
-    widths = np.abs(smap(ra + radius, dec)[0] - smap(ra - radius, dec)[0]) / np.cos(np.deg2rad(dec))
+    widths = np.abs(smap(ra + radius, dec)
+                    [0] - smap(ra - radius, dec)[0]) / np.cos(np.deg2rad(dec))
     heights = np.abs((smap(ra, dec + radius)[1] - smap(ra, dec - radius)[1]))
     # ells = [Ellipse((x[i], y[i]), width=widths[i], height=heights[i], angle=0, fc=None, ec='red', lw=1, fill=False, ls='--') for i in range(len(ra))]
     try:
@@ -601,13 +642,15 @@ def draw_stream_ellipse(smap, stream, coord='cel', radius=1.0, offset=0., label=
         else:
             color = 'cornflowerblue'
             ecolor = 'navy'
-        ell = Ellipse((x[i], y[i]), width=widths[i], height=heights[i], angle=0, fc=color, ec=ecolor, lw=0.5, fill=observed[i], ls='-')
+        ell = Ellipse((x[i], y[i]), width=widths[i], height=heights[
+                      i], angle=0, fc=color, ec=ecolor, lw=0.5, fill=observed[i], ls='-')
         ells.append(ell)
 
     for i, e in enumerate(ells):
         ax.add_artist(e)
         if label:
-            label_pointing(smap, str(pointings['f1'][i]), ra_label[i], dec_label[i], fontsize=10, color='orange')
+            label_pointing(smap, str(pointings['f1'][i]), ra_label[
+                           i], dec_label[i], fontsize=10, color='orange')
 
     return lonmax, latmax
 
@@ -643,13 +686,16 @@ def draw_streams(smap, mod=None, coord='cel', quad=None, streams=None, offset=0,
 
         #lonmax,latmax = draw_arc(smap,points,coord=coord,offset=off,**kwargs)
         if pointings:
-            lonmax, latmax = draw_stream_ellipse(smap, values, coord=coord, radius=pointing_radius, label=label_pointings)
+            lonmax, latmax = draw_stream_ellipse(
+                smap, values, coord=coord, radius=pointing_radius, label=label_pointings)
         else:
             for o in off:
                 if name in ['Palca', 'ATLAS']:
-                    lonmax, latmax = draw_stream_poly(smap, values, coord=coord, offset=o, **kwargs)
+                    lonmax, latmax = draw_stream_poly(
+                        smap, values, coord=coord, offset=o, **kwargs)
                 else:
-                    lonmax, latmax = draw_stream_arc(smap, values, coord=coord, offset=o, **kwargs)
+                    lonmax, latmax = draw_stream_arc(
+                        smap, values, coord=coord, offset=o, **kwargs)
 
         kw = copy.deepcopy(label_kw)
         defaults = dict(lon=lonmax, lat=latmax, color=kwargs['color'])
@@ -778,10 +824,14 @@ def quadrant_boundary(quadrant=1, steps=100):
     ur = smap(*corners[2])
     ul = smap(*corners[3])
 
-    left = smap(ll[0] * np.ones(steps), np.linspace(ul[1], ll[1], steps), inverse=True)
-    bottom = smap(np.linspace(ll[0], lr[0], steps), ll[1] * np.ones(steps), inverse=True)
-    right = smap(lr[0] * np.ones(steps), np.linspace(lr[1], ur[1], steps), inverse=True)
-    top = smap(np.linspace(ur[0], ul[0], steps), ul[1] * np.ones(steps), inverse=True)
+    left = smap(ll[0] * np.ones(steps),
+                np.linspace(ul[1], ll[1], steps), inverse=True)
+    bottom = smap(np.linspace(ll[0], lr[0], steps), ll[
+                  1] * np.ones(steps), inverse=True)
+    right = smap(lr[0] * np.ones(steps),
+                 np.linspace(lr[1], ur[1], steps), inverse=True)
+    top = smap(np.linspace(ur[0], ul[0], steps), ul[
+               1] * np.ones(steps), inverse=True)
 
     x = np.hstack([left[0], bottom[0], right[0], top[0]])
     y = np.hstack([left[1], bottom[1], right[1], top[1]])

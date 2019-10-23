@@ -12,6 +12,10 @@ import surveys
 # CMD CUT #
 ###########
 
+HOMEDIR = '/home/s1/nshipp/'
+# HOMEDIR = '/Users/nora/'
+
+
 def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
     if err == None:
         print('Using PS1 err!')
@@ -25,16 +29,40 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     # err changes between surveys!
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
-    if survey == 'PS1':
+    if survey in ['PS1']:
         iso = isochrone_factory(
             'Dotter', survey='ps1', age=age, distance_modulus=mu, z=z)
     elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS']:
-        iso = isochrone_factory('Dotter', survey='des', age=age, distance_modulus=mu, z=z)
+        iso = isochrone_factory('Dotter', survey='des',
+                                age=age, distance_modulus=mu, z=z)
+    elif survey == 'BASS':
+        try:
+            iso = np.loadtxt(
+                HOMEDIR + '.ugali/isochrones/ps1/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
+        except:
+            print('Error loading BASS isochrone...')
+
+        g_ps1 = iso[:, 9]
+        r_ps1 = iso[:, 10]
+        i_ps1 = iso[:, 11]
+
+        g_bass = g_ps1 + 0.00464 + 0.08672 * \
+            (g_ps1 - i_ps1) - 0.00668 * (g_ps1 - i_ps1) ** 2 - \
+            0.00255 * (g_ps1 - i_ps1) ** 3
+        r_bass = r_ps1 + 0.00110 - 0.06875 * \
+            (g_ps1 - i_ps1) + 0.02480 * (g_ps1 - i_ps1)**2 - \
+            0.00855 * (g_ps1 - i_ps1)**3
+
     else:
         print('Survey error - update isochrones.')
 
-    c = iso.color
-    m = iso.mag
+    if survey == 'BASS':
+        c = g_bass - r_bass
+        m = g_bass
+    else:
+        c = iso.color
+        m = iso.mag
+
     mnear = m + mu - dmu / 2.
     mfar = m + mu + dmu / 2.
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
