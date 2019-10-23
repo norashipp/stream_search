@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-import astropy.coordinates as coords # NEED TO RENAME
+import astropy.coordinates as coords  # NEED TO RENAME
 import astropy.units as u
 
 import skymap
@@ -82,7 +82,8 @@ def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
-    data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
+    data = streamlib.prepare_data(
+        hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
     # bkg = None
     return data
@@ -259,6 +260,11 @@ def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2, fi
     bkg = fit_background(data, center=(
         0, 0), coords='cel', coord_stream=None, sigma=sigma, deg=5)
 
+    if sigma:
+        data.fill_value = np.ma.median(data)
+        data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False),
+                           mask=data.mask, fill_value=np.nan)
+
     nside = hp.get_nside(data)
 
     height = max(1.2 * 6 * width, 5)
@@ -370,8 +376,10 @@ if __name__ == "__main__":
             center = 0, 0
 
     if survey == 'BASS':
-        coords = 'cel'
-        lon, lat = 190, 80
+        # coords = 'cel'
+        # lon, lat = 190, 80
+        coords='gal'
+        lon, lat = 120, 50
         vmin, vmax = -5, 3
         xsize = 1000
         sigma = 0.2
@@ -379,7 +387,7 @@ if __name__ == "__main__":
         filename = '../data/bass_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/bass/v%i/' % version
         center = (lon, lat)
-        coord_stream=None
+        coord_stream = None
 
     if center[0] > 180:
         center = (center[0] - 360, center[1])
@@ -394,16 +402,19 @@ if __name__ == "__main__":
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
                               plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
         # bkg = 0
-        bkg = fit_background(data, center=center, coords=coords, coord_stream=coord_stream, sigma=sigma, deg=5)
+        bkg = fit_background(data, center=center, coords=coords,
+                             coord_stream=coord_stream, sigma=sigma, deg=5)
         smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords,
                             proj='ortho', xsize=3000, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
         # plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream,
-        #              filename=movdir + 'density_%s_%s_%.2f_streams.png' % (survey, coord_stream, mu))
+        # filename=movdir + 'density_%s_%s_%.2f_streams.png' % (survey,
+        # coord_stream, mu))
 
         # smap = plot_density(data, bkg, coord_stream=coord_stream, center=center,
         #                     vmin=vmin, vmax=vmax, coords=coords, proj='ortho', xsize=3000)
         # plot_dwarfs_globs(smap, data, mu, coords=coords, coord_stream=coord_stream,
-        #                   filename=movdir + 'density_%s_%s_%.2f_globs.png' % (survey, coord_stream, mu))
+        # filename=movdir + 'density_%s_%s_%.2f_globs.png' % (survey,
+        # coord_stream, mu))
 
         plt.close('all')
