@@ -303,10 +303,15 @@ def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask
     return data
 
 
-def get_rotmat(stream):
-    mw_streams = galstreams.MWStreams(verbose=False)
-    ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
-            (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
+def get_rotmat(stream=None, ends=None):
+    if stream is not None:
+        mw_streams = galstreams.MWStreams(verbose=False)
+        ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
+                (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
+    elif ends is not None:
+        pass
+    else:
+        print('Need stream name or ends!')
 
     phi, theta, psi = results.euler_angles(
         ends[0][0], ends[0][1], ends[1][0], ends[1][1])
@@ -315,8 +320,13 @@ def get_rotmat(stream):
     return R
 
 
-def get_streampix(stream, data):
-    R = get_rotmat(stream)
+def get_streampix(data, stream=None, ends=None):
+    if stream is not None:
+        R = get_rotmat(stream)
+    elif ends is not None:
+        R = get_rotmat(ends)
+    else:
+        print('Need stream name or ends!')
     nside = hp.get_nside(data)
     lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
     streampix = hp.ang2pix(

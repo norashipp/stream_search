@@ -244,12 +244,18 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
     subprocess.check_call(cmd, shell=True)
 
 
-def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2, filename=None):
-    mw_streams = galstreams.MWStreams(verbose=False)
-    ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
-            (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
-    # center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
-    mu = dist2mod(mw_streams[stream].Rhel[0])
+def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None, width=0.3, sigma=0.2, delta=0.2, vmin=-1, vmax=5, filename=None):
+    if stream is not None:
+        mw_streams = galstreams.MWStreams(verbose=False)
+        ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
+                (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
+        # center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
+        mu = dist2mod(mw_streams[stream].Rhel[0])
+    elif ends is not None and mu is not None:
+        pass
+    else:
+        print('Need stream name or ends and modulus!')
+
     length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
     data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, sigma=sigma,
@@ -265,11 +271,11 @@ def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2, fi
     nside = hp.get_nside(data)
 
     height = max(1.2 * 6 * width, 5)
-    length = max(1.2 * length / 2., 1.5 * height)
+    length = max(1.2 * length, 1.5 * height)
 
     streampix = streamlib.get_streampix(stream, data)
 
-    delta = 0.1
+    # delta = 0.1
     aspect = float(height) / length
     b = np.arange(-height, height, delta)
     l = np.arange(-length, length, delta)
@@ -297,9 +303,9 @@ def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2, fi
 
     plt.setp(ax2.get_yticklabels(), visible=False)
     # Do the plotting...
-    kw = dict(vmin=-1.5, vmax=1.5, rasterized=True, cmap='gray_r')
-    if stream == 'ATLAS':
-        kw.update(vmin=-1.5, vmax=2.0)
+    kw = dict(vmin=vmin, vmax=vmax, rasterized=True, cmap='gray_r')
+    # if stream == 'ATLAS':
+    #     kw.update(vmin=-1.5, vmax=2.0)
     im = ax.pcolormesh(l, b, value, **kw)
 
     plt.colorbar(im, cax, orientation='horizontal')
@@ -375,7 +381,7 @@ if __name__ == "__main__":
     if survey == 'BASS':
         # coords = 'cel'
         # lon, lat = 190, 80
-        coords='gal'
+        coords = 'gal'
         lon, lat = 120, 50
         vmin, vmax = -5, 3
         xsize = 1000
@@ -399,8 +405,7 @@ if __name__ == "__main__":
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
                               plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
         # bkg = 0
-        bkg = fit_background(data, center=center, coords=coords,
-                             coord_stream=coord_stream, sigma=sigma, deg=5)
+        bkg = fit_background(data, center=center, coords=coords, coord_stream=stream, sigma=sigma, deg=5)
         smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords,
                             proj='ortho', xsize=3000, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
