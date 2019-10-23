@@ -14,6 +14,10 @@ import fitsio
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+import astropy.coordinates as coords
+import astropy.units as u
 
 import skymap
 from skymap.utils import cel2gal, gal2cel
@@ -31,6 +35,11 @@ import rotation_matrix
 import surveys
 reload(surveys)
 import results
+import elysian
+
+
+# HOMEDIR = '/Users/nora/'
+HOMEDIR = '/home/s1/nshipp/'
 
 
 def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8)):
@@ -88,7 +97,7 @@ def fit_background(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0
 
 def plot_dwarfs_globs(smap, data, mu, dmu=0.5, coords='cel', coord_stream=None, filename=None):
     dwarfs_globs = fitsio.read(
-        '/Users/nora/projects/stream_search/data/MW_dwarfs_globs.fits')
+        '../data/MW_dwarfs_globs.fits')
 
     nside = hp.get_nside(data)
 
@@ -235,28 +244,7 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
     subprocess.check_call(cmd, shell=True)
 
 
-# def get_rotmat(stream):
-#     mw_streams = galstreams.MWStreams(verbose=False)
-#     ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
-#             (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
-
-#     phi, theta, psi = results.euler_angles(
-#         ends[0][0], ends[0][1], ends[1][0], ends[1][1])
-
-#     R = results.create_matrix(phi, theta, psi)
-#     return R
-
-
-# def get_streampix(stream, data):
-#     R = get_rotmat(stream)
-#     nside = hp.get_nside(data)
-#     lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
-#     streampix = hp.ang2pix(
-#         nside, *rotation_matrix.phi12_rotmat(lon, lat, np.linalg.inv(R)), lonlat=True)
-#     return streampix
-
-
-def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2):
+def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2, filename=None):
     mw_streams = galstreams.MWStreams(verbose=False)
     ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
             (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
@@ -264,16 +252,73 @@ def plot_stream_zoom(stream, hpxcube, fracdet, modulus, width=0.3, sigma=0.2):
     mu = dist2mod(mw_streams[stream].Rhel[0])
     length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
-    data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, sigma=sigma,
-                               plane=False, center=False, sgr=False, bmax=25, cmax=40)
+    data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, sigma=sigma,
+                          plane=False, center=False, sgr=False, bmax=25, cmax=40)
+    bkg = fit_background(data, center=(
+        0, 0), coords='cel', coord_stream=None, sigma=sigma, deg=5)
+
+    nside = hp.get_nside(data)
 
     height = max(1.2 * 6 * width, 5)
     length = max(1.2 * length / 2., 1.5 * height)
 
     streampix = streamlib.get_streampix(stream, data)
 
-    # CONTINUE LATER, ADAPTING plot_quick_zoom.py
-    pass
+    delta = 0.1
+    aspect = float(height) / length
+    b = np.arange(-height, height, delta)
+    l = np.arange(-length, length, delta)
+    ll, bb = np.meshgrid((l[1:] + l[:-1]) / 2., (b[1:] + b[:-1]) / 2.)
+
+    phi, theta, psi = results.euler_angles(
+        ends[0][0], ends[0][1], ends[1][0], ends[1][1])
+
+    stream_cls = elysian.euler_factory(stream, phi, theta, psi, ends=ends)
+
+    rot = stream_cls(Lambda=ll.flatten() * u.deg, Beta=bb.flatten() * u.deg)
+    icrs = rot.transform_to(coords.ICRS)
+    ends = coords.ICRS(*(stream_cls.ends.T * u.deg)).transform_to(stream_cls)
+    ends.Lambda.wrap_angle = 180 * u.deg
+
+    pix = hp.ang2pix(nside, icrs.ra.deg, icrs.dec.deg, lonlat=True)
+    value = (data - bkg)[pix].reshape(ll.shape)
+    mask = (data.mask)[pix].reshape(ll.shape)
+
+    fig, ax = plt.subplots(1, 1, figsize=(5.0 / aspect, 5.0))
+    ax.set_aspect('equal')
+    divider = make_axes_locatable(ax)
+    ax2 = divider.append_axes('right', size=1.2, pad=0.1, sharey=ax)
+    cax = divider.append_axes('top', size='7%', pad=0.05)
+
+    plt.setp(ax2.get_yticklabels(), visible=False)
+    # Do the plotting...
+    kw = dict(vmin=-1.5, vmax=1.5, rasterized=True, cmap='gray_r')
+    if stream == 'ATLAS':
+        kw.update(vmin=-1.5, vmax=2.0)
+    im = ax.pcolormesh(l, b, value, **kw)
+
+    plt.colorbar(im, cax, orientation='horizontal')
+    cax.tick_params(axis='x', top=True, bottom=False,
+                    labeltop=True, labelbottom=False)
+
+    # ax.plot(ends.L.deg, ends.B.deg, ls='--', lw=1.5, color='deepskyblue')
+    cts = value.sum(axis=1)
+    area = (~mask).sum(axis=1)
+    ax2.plot(cts / area, (b[1:] + b[:-1]) / 2., color='k')
+
+    label = r'${\rm %s}$' % stream.replace(' ', '\ ')
+    ax2.annotate(label, (0.95, 0.95), xycoords='axes fraction',
+                 fontsize=11, ha='right', va='top')
+    # And the labeling
+    ax.set_xlabel(r'$\Lambda\ {\rm (deg)}$')
+    ax.set_ylabel(r'${\rm B\ (deg)}$')
+    ax.set_xlim(l.min(), l.max())
+    ax.set_ylim(b.min(), b.max())
+    # plt.suptitle(name)
+    plt.subplots_adjust(bottom=0.05, top=0.98, right=0.98)
+
+    if filename:
+        plt.savefig(filename)
 
 
 def plot_stream(stream, hpxcube, fracdet, modulus):
@@ -281,8 +326,11 @@ def plot_stream(stream, hpxcube, fracdet, modulus):
     center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
     mu = dist2mod(mw_streams[stream].Rhel[0])
 
-    data, bkg = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
-                               plane=False, center=False, sgr=False, bmax=25, cmax=40)
+    data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, sigma=sigma,
+                          plane=False, center=False, sgr=False, bmax=25, cmax=40)
+    bkg = fit_background(data, center=(
+        0, 0), coords='cel', coord_stream=None, sigma=sigma, deg=5)
+
     smap = plot_density(data, bkg, center=center, vmax=8,
                         coords='cel', proj='ortho', xsize=600)
 
@@ -297,24 +345,39 @@ def plot_stream(stream, hpxcube, fracdet, modulus):
 
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
-    version = 3
-    filename = '../data/decals_dr8_iso_hpxcube_v%i.fits.gz' % version
-    # movdir = '/data/des40.b/data/nshipp/stream_search/plots/decals/v%i/' % version
-    movdir = '/Users/nora/projects/stream_search/plots/decals/v%i/' % version
-    # movdir_labeled = '/data/des40.b/data/nshipp/stream_search/plots/decals/v%i/labeled/' % version
-    coords = 'stream'
-    coord_stream = 'Lethe'
-    vmin, vmax = 0, 15
-    sigma = 0.3
 
-    # stream = 'Lethe'
-    mw_streams = galstreams.MWStreams(verbose=False)
-    if coords == 'cel':
-        center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
-    elif coords == 'gal':
-        center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
-    elif coords == 'stream':
-        center = 0, 0
+    survey = 'BASS'
+
+    if survey == 'DECaLS':
+        coords = 'stream'
+        coord_stream = 'Lethe'
+        vmin, vmax = 0, 15
+        sigma = 0.3
+        version = 3
+        filename = '../data/decals_dr8_iso_hpxcube_v%i.fits.gz' % version
+        movdir = '../plots/decals/v%i/' % version
+
+        # stream = 'Lethe'
+        mw_streams = galstreams.MWStreams(verbose=False)
+        if coords == 'cel':
+            center = (mw_streams[stream].ra.mean(),
+                      mw_streams[stream].dec.mean())
+        elif coords == 'gal':
+            center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
+        elif coords == 'stream':
+            center = 0, 0
+
+    if survey == 'BASS':
+        coords = 'cel'
+        lon, lat = 190, 80
+        vmin, vmax = 0, 18
+        xsize = 1000
+        sigma = 0.2
+        version = 0
+        filename = '../data/bass_dr8_iso_hpxcube_v%i.fits.gz' % version
+        movdir = '../plots/bass/v%i/' % version
+        center = (lon, lat)
+
     if center[0] > 180:
         center = (center[0] - 360, center[1])
 
@@ -325,15 +388,17 @@ if __name__ == "__main__":
         #     print('Skipping m-M = %.1f' % mu)
         #     continue
         print('Plotting m-M = %.1f...' % mu)
-        data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
+        data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
+                              plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
         bkg = 0
         # bkg = fit_background(data, center=center, sigma=0.2)
-        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj='ortho', xsize=3000, filename=movdir+'density_decals_%s_%.2f.png'  % (coord_stream, mu))
-        
-        plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream, filename=movdir + 'density_decals_%s_%.2f_streams.png' % (coord_stream, mu))
+        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords,
+                            proj='ortho', xsize=3000, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
-        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj='ortho', xsize=3000)
-        plot_dwarfs_globs(smap, data, mu, coords=coords, coord_stream=coord_stream, filename=movdir + 'density_decals_%s_%.2f_globs.png' % (coord_stream, mu))
-        
+        # plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream,
+        #              filename=movdir + 'density_%s_%s_%.2f_streams.png' % (survey, coord_stream, mu))
 
-
+        # smap = plot_density(data, bkg, coord_stream=coord_stream, center=center,
+        #                     vmin=vmin, vmax=vmax, coords=coords, proj='ortho', xsize=3000)
+        # plot_dwarfs_globs(smap, data, mu, coords=coords, coord_stream=coord_stream,
+        #                   filename=movdir + 'density_%s_%s_%.2f_globs.png' % (survey, coord_stream, mu))
