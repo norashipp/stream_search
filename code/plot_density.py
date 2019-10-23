@@ -190,10 +190,7 @@ def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj
     defaults = dict(cmap='gray_r', xsize=400, smooth=0.2)
     setdefaults(kwargs, defaults)
 
-    try:
-        nside = hp.get_nside(data)
-    except:
-        print(data)
+    nside = hp.get_nside(data)
 
     plt.figure()
     smap = skymap.Skymap(projection=proj, lon_0=center[
