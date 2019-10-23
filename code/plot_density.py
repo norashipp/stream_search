@@ -3,7 +3,7 @@ from __future__ import division
 import os
 import glob
 import subprocess
-from importlib import reload
+# from importlib import reload
 
 import numpy as np
 from collections import OrderedDict as odict
@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-import astropy.coordinates as coords
+import astropy.coordinates as coords # NEED TO RENAME
 import astropy.units as u
 
 import skymap
@@ -30,10 +30,10 @@ from ugali.utils.projector import angsep
 import galstreams
 
 import streamlib
-reload(streamlib)
+# reload(streamlib)
 import rotation_matrix
 import surveys
-reload(surveys)
+# reload(surveys)
 import results
 import elysian
 
@@ -82,8 +82,7 @@ def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
-    data = streamlib.prepare_data(
-        hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
+    data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # bkg = streamlib.fit_bkg_poly(data, sigma=sigma)
     # bkg = None
     return data
@@ -190,7 +189,10 @@ def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj
     defaults = dict(cmap='gray_r', xsize=400, smooth=0.2)
     setdefaults(kwargs, defaults)
 
-    nside = hp.get_nside(data)
+    try:
+        nside = hp.get_nside(data)
+    except:
+        print(data)
 
     plt.figure()
     smap = skymap.Skymap(projection=proj, lon_0=center[
@@ -370,7 +372,7 @@ if __name__ == "__main__":
     if survey == 'BASS':
         coords = 'cel'
         lon, lat = 190, 80
-        vmin, vmax = 0, 18
+        vmin, vmax = -5, 3
         xsize = 1000
         sigma = 0.2
         version = 0
@@ -385,14 +387,14 @@ if __name__ == "__main__":
     hpxcube, fracdet, modulus = load_hpxcube(filename)
 
     for mu in modulus:
-        # if os.path.exists(movdir + 'density_%s_%.2f.png' % (coord_stream, mu)):
-        #     print('Skipping m-M = %.1f' % mu)
-        #     continue
+        if os.path.exists(movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu)):
+            print('Skipping m-M = %.1f' % mu)
+            continue
         print('Plotting m-M = %.1f...' % mu)
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
                               plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
-        bkg = 0
-        # bkg = fit_background(data, center=center, sigma=0.2)
+        # bkg = 0
+        bkg = fit_background(data, center=center, coords=coords, coord_stream=coord_stream, sigma=sigma, deg=5)
         smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords,
                             proj='ortho', xsize=3000, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
@@ -403,3 +405,5 @@ if __name__ == "__main__":
         #                     vmin=vmin, vmax=vmax, coords=coords, proj='ortho', xsize=3000)
         # plot_dwarfs_globs(smap, data, mu, coords=coords, coord_stream=coord_stream,
         #                   filename=movdir + 'density_%s_%s_%.2f_globs.png' % (survey, coord_stream, mu))
+
+        plt.close('all')
