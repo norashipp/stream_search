@@ -377,6 +377,7 @@ if __name__ == "__main__":
         filename = '../data/bass_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/bass/v%i/' % version
         center = (lon, lat)
+        coord_stream=None
 
     if center[0] > 180:
         center = (center[0] - 360, center[1])
