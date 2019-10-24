@@ -12,6 +12,7 @@ import scipy.ndimage as nd
 from matplotlib.path import Path
 
 from multiprocessing import Process, Value, Array
+from multiprocessing import sharedctypes
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     # moduli = np.arange(15, 20 + dmu, dmu)
     # moduli = np.arange(surveys[survey]['moduli'][0], surveys[
     #                    survey]['moduli'][1] + dmu, dmu)
-    moduli = [15,16]
+    moduli = [15, 16]
     print('Moduli: ', moduli)
     age = 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
     z = 0.0002
@@ -162,8 +163,13 @@ if __name__ == '__main__':
 
     hpxcube = np.zeros((hp.nside2npix(nside), len(moduli)))
 
-    data = Array('d', data)
-    hpxcube = Array('d', hpxcube)
+    # data = Array('d', data)
+    # hpxcube = Array('d', hpxcube)
+    data = np.ctypeslib.as_ctypes(data)
+    hpxcube = np.ctypeslib.as_ctypes(hpxcube)
+    data = sharedctypes.RawArray(data._type_, data)
+    hpxcube = sharedctypes.RawArray(hpxcube._type_, hpxcube)
+
     args = zip(moduli, [age] * len(moduli),
                [z] * len(moduli), [survey] * len(moduli), data, hpxcube)
 
