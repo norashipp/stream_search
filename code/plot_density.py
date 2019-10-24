@@ -89,9 +89,9 @@ def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0
     return data
 
 
-def fit_background(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0.2, percent=[2, 95], deg=5):
+def fit_background(data, center=(0, 0), coords='cel', coord_stream=None, proj='cyl', sigma=0.2, percent=[2, 95], deg=5):
     bkg = streamlib.fit_bkg_poly(data, center=center, coords=coords,
-                                 coord_stream=coord_stream, sigma=sigma, percent=percent, deg=deg)
+                                 coord_stream=coord_stream, proj=proj, sigma=sigma, percent=percent, deg=deg)
     return bkg
 
 
@@ -273,7 +273,7 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
     height = max(1.2 * 6 * width, 5)
     length = max(1.2 * length, 1.5 * height)
 
-    streampix = streamlib.get_streampix(stream, data)
+    streampix = streamlib.get_streampix(data, stream, ends)
 
     # delta = 0.1
     aspect = float(height) / length
@@ -284,6 +284,8 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
     phi, theta, psi = results.euler_angles(
         ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
+    if stream is None:
+        stream = 'New'
     stream_cls = elysian.euler_factory(stream, phi, theta, psi, ends=ends)
 
     rot = stream_cls(Lambda=ll.flatten() * u.deg, Beta=bb.flatten() * u.deg)
@@ -358,6 +360,7 @@ if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
 
     survey = 'BASS'
+    proj = 'ortho'
 
     if survey == 'DECaLS':
         coords = 'stream'
@@ -377,6 +380,7 @@ if __name__ == "__main__":
             center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
         elif coords == 'stream':
             center = 0, 0
+        background_center = center
 
     if survey == 'BASS':
         # coords = 'cel'
@@ -390,6 +394,7 @@ if __name__ == "__main__":
         filename = '../data/bass_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/bass/v%i/' % version
         center = (lon, lat)
+        background_center=(190, 80)
         coord_stream = None
 
     if center[0] > 180:
@@ -405,9 +410,9 @@ if __name__ == "__main__":
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
                               plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
         # bkg = 0
-        bkg = fit_background(data, center=center, coords=coords, coord_stream=stream, sigma=sigma, deg=5)
-        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords,
-                            proj='ortho', xsize=3000, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
+        bkg = fit_background(data, center=background_center, coords=coords,
+                             coord_stream=coord_stream, sigma=sigma, deg=5)
+        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj=proj, xsize=xsize, smooth=sigma, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
         # plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream,
         # filename=movdir + 'density_%s_%s_%.2f_streams.png' % (survey,

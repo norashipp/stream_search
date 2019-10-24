@@ -2,7 +2,6 @@
 """
 Generic python script.
 """
-__author__ = "Alex Drlica-Wagner"
 import os
 from os.path import abspath, dirname, realpath
 import subprocess
@@ -305,6 +304,7 @@ def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask
 
 def get_rotmat(stream=None, ends=None):
     if stream is not None:
+        print(stream)
         mw_streams = galstreams.MWStreams(verbose=False)
         ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
                 (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
@@ -321,12 +321,7 @@ def get_rotmat(stream=None, ends=None):
 
 
 def get_streampix(data, stream=None, ends=None):
-    if stream is not None:
-        R = get_rotmat(stream)
-    elif ends is not None:
-        R = get_rotmat(ends)
-    else:
-        print('Need stream name or ends!')
+    R = get_rotmat(stream, ends)
     nside = hp.get_nside(data)
     lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
     streampix = hp.ang2pix(
@@ -334,7 +329,7 @@ def get_streampix(data, stream=None, ends=None):
     return streampix
 
 
-def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0.1, percent=[2, 95], deg=5):
+def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, proj='cyl', sigma=0.1, percent=[2, 95], deg=5):
     """ Fit foreground/background with a polynomial """
     nside = hp.get_nside(data.mask)
     lon, lat = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
@@ -346,7 +341,7 @@ def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0.1
                        mask=data.mask)
 
     smap = skymap.Skymap(parallels=False, meridians=False,
-                         lon_0=center[0], lat_0=center[1])
+                         lon_0=center[0], lat_0=center[1], projection=proj)
 
     if coords == 'gal':
         galpix = hp.ang2pix(nside, *gal2cel(lon, lat), lonlat=True)
@@ -355,7 +350,7 @@ def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, sigma=0.1
         if not coord_stream:
             print('Need to input coord_stream!')
         else:
-            print('Converting to %s coords.' %coord_stream)
+            print('Converting to %s coords.' % coord_stream)
         streampix = get_streampix(coord_stream, data)
         data = data[streampix]
 
