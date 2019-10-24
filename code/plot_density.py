@@ -118,7 +118,7 @@ def plot_dwarfs_globs(smap, data, mu, dmu=0.5, coords='cel', coord_stream=None, 
     elif coords == 'stream':
         if not coord_stream:
             print('Need to input coord_stream!')
-        R = streamlib.get_rotmat(coord_stream)
+        R = streamlib.get_rotmat(stream=coord_stream)
         phi1, phi2 = rotation_matrix.phi12_rotmat(ra_array, dec_array, R)
         x, y = smap(phi1, phi2)
     elif coords == 'cel':
@@ -151,7 +151,7 @@ def plot_streams(smap, mu, dmu=0.5, coords='cel', coord_stream=None, filename=No
                 if not coord_stream:
                     print('Need to input coord_stream!')
                 ra, dec = mw_streams[stream].ra, mw_streams[stream].dec
-                R = streamlib.get_rotmat(coord_stream)
+                R = streamlib.get_rotmat(stream=coord_stream)
                 phi1, phi2 = rotation_matrix.phi12_rotmat(ra, dec, R)
                 x, y = smap(phi1, phi2)
             else:
@@ -173,7 +173,7 @@ def plot_stream_list(smap, streams, coords='cel', coord_stream=None, filename=No
             if not coord_stream:
                 print('Need to input coord_stream!')
             ra, dec = mw_streams[stream].ra, mw_streams[stream].dec
-            R = streamlib.get_rotmat(coord_stream)
+            R = streamlib.get_rotmat(stream=coord_stream)
             phi1, phi2 = rotation_matrix.phi12_rotmat(ra, dec, R)
             x, y = smap(phi1, phi2)
         else:
@@ -186,15 +186,16 @@ def plot_stream_list(smap, streams, coords='cel', coord_stream=None, filename=No
         plt.savefig(filename)
 
 
-def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj='mbtfpq', filename=None, **kwargs):
+def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj='mbtfpq', filename=None, smap=None, **kwargs):
     defaults = dict(cmap='gray_r', xsize=400, smooth=0.2)
     setdefaults(kwargs, defaults)
 
     nside = hp.get_nside(data)
 
-    plt.figure()
-    smap = skymap.Skymap(projection=proj, lon_0=center[
-                         0], lat_0=center[1], celestial=False)
+    if smap is None:
+        plt.figure()
+        smap = skymap.Skymap(projection=proj, lon_0=center[
+                             0], lat_0=center[1], celestial=False)
 
     if coords == 'gal':
         lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
@@ -206,7 +207,7 @@ def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj
     elif coords == 'stream':
         if not coord_stream:
             print('Need to input coord_stream!')
-        streampix = streamlib.get_streampix(coord_stream, data)
+        streampix = streamlib.get_streampix(data=data, stream=coord_stream)
         smap.draw_hpxmap((data[streampix] - bkg), **kwargs)
 
     else:
@@ -273,7 +274,7 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
     height = max(1.2 * 6 * width, 5)
     length = max(1.2 * length, 1.5 * height)
 
-    streampix = streamlib.get_streampix(data, stream, ends)
+    streampix = streamlib.get_streampix(data=data, stream=stream, ends=ends)
 
     # delta = 0.1
     aspect = float(height) / length
@@ -359,15 +360,16 @@ def plot_stream(stream, hpxcube, fracdet, modulus):
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
 
-    survey = 'BASS'
+    survey = 'DECaLS'
     proj = 'ortho'
 
     if survey == 'DECaLS':
         coords = 'stream'
         coord_stream = 'Lethe'
         vmin, vmax = 0, 15
+        xsize = 1000
         sigma = 0.3
-        version = 3
+        version = 4
         filename = '../data/decals_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/decals/v%i/' % version
 
@@ -386,6 +388,7 @@ if __name__ == "__main__":
         # coords = 'cel'
         # lon, lat = 190, 80
         coords = 'gal'
+        coord_stream = None
         lon, lat = 120, 50
         vmin, vmax = -5, 3
         xsize = 1000
@@ -395,7 +398,6 @@ if __name__ == "__main__":
         movdir = '../plots/bass/v%i/' % version
         center = (lon, lat)
         background_center=(190, 80)
-        coord_stream = None
 
     if center[0] > 180:
         center = (center[0] - 360, center[1])
@@ -409,9 +411,9 @@ if __name__ == "__main__":
         print('Plotting m-M = %.1f...' % mu)
         data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
                               plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
-        # bkg = 0
-        bkg = fit_background(data, center=background_center, coords=coords,
-                             coord_stream=coord_stream, sigma=sigma, deg=5)
+        bkg = 0
+        # bkg = fit_background(data, center=background_center, coords=coords,
+        #                      coord_stream=coord_stream, sigma=sigma, deg=5)
         smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj=proj, xsize=xsize, smooth=sigma, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
         # plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream,

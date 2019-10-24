@@ -11,8 +11,10 @@ import healpy as hp
 import scipy.ndimage as nd
 from matplotlib.path import Path
 
+from multiprocessing import Pool
 from multiprocessing import Process, Value, Array
 from multiprocessing import sharedctypes
+import cPickle as pickle
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -26,33 +28,19 @@ import filter_data
 
 
 def run(args):
-    mod, age, z, survey, data, hpxcube = args
+    mod = args
     print("m-M = %.1f..." % (mod))
 
-    C = surveys[survey]['C']
-    E = surveys[survey]['E']
-    err = surveys[survey]['err']
     gmin = 19.5 - (16.8 - mod)
-
-    mag = surveys[survey]['mag']
-    mag_g = mag % 'G'
-    mag_r = mag % 'R'
-    mag_i = mag % 'I'
 
     sel = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[
         mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
     d = data[sel]
 
-    if metal_poor:
-        sel = filter_data.select_metal_poor(
-            data[mag_g], data[mag_r], data[mag_i])
-        d = data[sel]
-
     pixel = healpix.ang2pix(nside, d['RA'], d['DEC'])
     pix, cts = np.unique(pixel, return_counts=True)
-    hpxcube[pix, i] = cts
-
+    return i, pix, cts
 
 if __name__ == '__main__':
     import argparse
@@ -62,6 +50,8 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-s', '--survey', default='DES_Y3')
     parser.add_argument('-mp', '--multiproc', default=0)
+    parser.add_argument('-a', '--age', default=12.)
+    parser.add_argument('-z', '--metallicity', default=0.0004)
     args = parser.parse_args()
 
     level = logging.DEBUG if args.verbose else logging.INFO
@@ -98,8 +88,8 @@ if __name__ == '__main__':
     #                    survey]['moduli'][1] + dmu, dmu)
     moduli = [15, 16]
     print('Moduli: ', moduli)
-    age = 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
-    z = 0.0002
+    age = args.age # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
+    z = args.metallicity # 0.0002
 
     metal_poor = False
     ###################
@@ -130,6 +120,8 @@ if __name__ == '__main__':
         filenames = np.asarray(filenames)[idx]
 
     data = load_infiles(filenames, columns=columns, multiproc=16)
+    outfile = '/data/des40.b/data/nshipp/stream_search/%s_pickle.dat' % survey
+    pickle.dump(data, outfile)
     gc.collect()
 
     # Select magnitude range
@@ -161,24 +153,36 @@ if __name__ == '__main__':
         data = data[a1]
         gc.collect()
 
+    if metal_poor:
+        sel = filter_data.select_metal_poor(
+            data[mag_g], data[mag_r], data[mag_i])
+        data = data[sel]
+        gc.collect()
+
+    C = surveys[survey]['C']
+    E = surveys[survey]['E']
+    err = surveys[survey]['err']
+
     hpxcube = np.zeros((hp.nside2npix(nside), len(moduli)))
 
     # data = Array('d', data)
     # hpxcube = Array('d', hpxcube)
-    data = np.ctypeslib.as_ctypes(data)
-    hpxcube = np.ctypeslib.as_ctypes(hpxcube)
-    data = sharedctypes.RawArray(data._type_, data)
-    hpxcube = sharedctypes.RawArray(hpxcube._type_, hpxcube)
+    # data = np.ctypeslib.as_ctypes(data)
+    # hpxcube = np.ctypeslib.as_ctypes(hpxcube)
+    # data = sharedctypes.RawArray(data._type_, data)
+    # hpxcube = sharedctypes.RawArray(hpxcube._type_, hpxcube)
 
-    args = zip(moduli, [age] * len(moduli),
-               [z] * len(moduli), [survey] * len(moduli), data, hpxcube)
+    args = moduli
 
     if multiproc:
-        from multiprocessing import Pool
         p = Pool(multiproc, maxtasksperchild=1)
-        p.map(run, args)
+        results = p.map(run, args)
     else:
-        [run(arg) for arg in args]
+        results = [r for r in map(run, args)]
+
+    for res in results:
+        i, pix, cts = res
+        hpxcube[i, pix] = cts
 
     # for i, mod in enumerate(moduli):
     #     print(" bin=%i: m-M = %.1f..." % (i, mod))

@@ -321,7 +321,7 @@ def get_rotmat(stream=None, ends=None):
 
 
 def get_streampix(data, stream=None, ends=None):
-    R = get_rotmat(stream, ends)
+    R = get_rotmat(stream=stream, ends=ends)
     nside = hp.get_nside(data)
     lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
     streampix = hp.ang2pix(
@@ -351,7 +351,7 @@ def fit_bkg_poly(data, center=(0, 0), coords='cel', coord_stream=None, proj='cyl
             print('Need to input coord_stream!')
         else:
             print('Converting to %s coords.' % coord_stream)
-        streampix = get_streampix(coord_stream, data)
+        streampix = get_streampix(data=data, stream=coord_stream)
         data = data[streampix]
 
     sel = ~data.mask
