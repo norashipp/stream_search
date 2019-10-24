@@ -185,7 +185,7 @@ if __name__ == '__main__':
 
     for res in results:
         mod, pix, cts = res
-        i = np.argmin(np.abs(modulus - mod))
+        i = np.argmin(np.abs(moduli - mod))
         hpxcube[i, pix] = cts
 
     # for i, mod in enumerate(moduli):
