@@ -88,8 +88,8 @@ if __name__ == '__main__':
                        survey]['moduli'][1] + dmu, dmu)
     # moduli = [15, 16]
     print('Moduli: ', moduli)
-    age = args.age # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
-    z = args.metallicity # 0.0002
+    age = args.age  # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
+    z = args.metallicity  # 0.0002
 
     metal_poor = False
     ###################
@@ -120,8 +120,8 @@ if __name__ == '__main__':
         filenames = np.asarray(filenames)[idx]
 
     data = load_infiles(filenames, columns=columns, multiproc=16)
-    outfile = '/data/des40.b/data/nshipp/stream_search/%s_pickle.dat' % survey
-    pickle.dump(data, outfile)
+    # outfile = '/data/des40.b/data/nshipp/stream_search/%s_pickle.dat' % survey
+    # pickle.dump(data, outfile)
     gc.collect()
 
     # Select magnitude range
