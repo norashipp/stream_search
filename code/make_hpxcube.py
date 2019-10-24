@@ -40,7 +40,7 @@ def run(arguments):
 
     pixel = healpix.ang2pix(nside, d['RA'], d['DEC'])
     pix, cts = np.unique(pixel, return_counts=True)
-    return i, pix, cts
+    return mod, pix, cts
 
 if __name__ == '__main__':
     import argparse
@@ -88,7 +88,9 @@ if __name__ == '__main__':
                        survey]['moduli'][1] + dmu, dmu)
     # moduli = [15, 16]
     print('Moduli: ', moduli)
-    age = float(args.age)  # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
+    # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much
+    # difference along main sequence
+    age = float(args.age)
     z = float(args.metallicity)  # 0.0002
 
     metal_poor = False
@@ -182,7 +184,8 @@ if __name__ == '__main__':
         results = [r for r in map(run, arguments)]
 
     for res in results:
-        i, pix, cts = res
+        mod, pix, cts = res
+        i = np.argmin(np.abs(modulus - mod))
         hpxcube[i, pix] = cts
 
     # for i, mod in enumerate(moduli):
