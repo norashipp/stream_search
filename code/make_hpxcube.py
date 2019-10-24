@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
     arguments = moduli
 
-    multiproc = args.multiproc
+    multiproc = int(args.multiproc)
     if multiproc:
         p = Pool(multiproc, maxtasksperchild=1)
         results = p.map(run, arguments)
