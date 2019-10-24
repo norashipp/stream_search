@@ -84,9 +84,9 @@ if __name__ == '__main__':
     ###################
     dmu = 0.1
     # moduli = np.arange(15, 20 + dmu, dmu)
-    # moduli = np.arange(surveys[survey]['moduli'][0], surveys[
-    #                    survey]['moduli'][1] + dmu, dmu)
-    moduli = [15, 16]
+    moduli = np.arange(surveys[survey]['moduli'][0], surveys[
+                       survey]['moduli'][1] + dmu, dmu)
+    # moduli = [15, 16]
     print('Moduli: ', moduli)
     age = args.age # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much difference along main sequence
     z = args.metallicity # 0.0002
