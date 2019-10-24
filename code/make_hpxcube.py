@@ -24,7 +24,7 @@ from surveys import surveys
 import filter_data
 
 
-def run(args)
+def run(args):
     mod, age, z, survey, data, hpxcube = args
     print("m-M = %.1f..." % (mod))
 
