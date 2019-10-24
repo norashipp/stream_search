@@ -27,8 +27,8 @@ from surveys import surveys
 import filter_data
 
 
-def run(args):
-    mod = args
+def run(arguments):
+    mod = arguments
     print("m-M = %.1f..." % (mod))
 
     gmin = 19.5 - (16.8 - mod)
@@ -172,13 +172,14 @@ if __name__ == '__main__':
     # data = sharedctypes.RawArray(data._type_, data)
     # hpxcube = sharedctypes.RawArray(hpxcube._type_, hpxcube)
 
-    args = moduli
+    arguments = moduli
 
+    multiproc = args.multiproc
     if multiproc:
         p = Pool(multiproc, maxtasksperchild=1)
-        results = p.map(run, args)
+        results = p.map(run, arguments)
     else:
-        results = [r for r in map(run, args)]
+        results = [r for r in map(run, arguments)]
 
     for res in results:
         i, pix, cts = res
