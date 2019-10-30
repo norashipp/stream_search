@@ -334,6 +334,8 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
     if filename:
         plt.savefig(filename)
 
+    return ax
+
 
 def plot_stream(stream, hpxcube, fracdet, modulus):
     mw_streams = galstreams.MWStreams(verbose=False)

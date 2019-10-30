@@ -33,8 +33,13 @@ def run(arguments):
 
     gmin = 19.5 - (16.8 - mod)
 
-    sel = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[
+    sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[
         mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+
+    sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[
+        mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+
+    sel = sel1 & sel2
 
     d = data[sel]
 
@@ -64,6 +69,7 @@ if __name__ == '__main__':
     mag_g = mag % 'G'
     mag_r = mag % 'R'
     mag_i = mag % 'I'
+    mag_z = mag % 'Z'
     ext = surveys[survey]['ext']
     stargal = surveys[survey]['stargal']
     stargal_cut = surveys[survey]['stargal_cut']
