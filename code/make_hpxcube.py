@@ -1,4 +1,4 @@
-import os
+-import os
 import glob
 import logging
 from collections import OrderedDict as odict
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     maxmag = surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try
     # mp search
-    columns = ['RA', 'DEC', mag_g, mag_r]
+    columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
     if stargal is not None:
         columns.append(stargal)
 
