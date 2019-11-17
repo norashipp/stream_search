@@ -12,8 +12,8 @@ import surveys
 # CMD CUT #
 ###########
 
-HOMEDIR = '/home/s1/nshipp/'
-# HOMEDIR = '/Users/nora/'
+# HOMEDIR = '/home/s1/nshipp/'
+HOMEDIR = '/Users/nora/'
 
 
 def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
@@ -144,9 +144,6 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
 
     else:
         print('Survey error - update isochrones.')
-
-    c = r_bass - z_bass
-    m = g_bass
 
     mnear = m + mu - dmu / 2.
     mfar = m + mu + dmu / 2.
