@@ -96,7 +96,7 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
 
         g_ps1 = iso[:, 9]
         r_ps1 = iso[:, 10]
-        i_ps1 = iso[:, 11]
+        # i_ps1 = iso[:, 11]
         z_ps1 = iso[:, 12]
 
         c = r_ps1 - z_ps1
@@ -106,10 +106,11 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
         iso = np.loadtxt(
             HOMEDIR + '.ugali/isochrones/des/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
 
-        g_decam = iso[:, 9]
-        r_decam = iso[:, 10]
-        i_decam = iso[:, 11]
-        z_decam = iso[:, 12]
+        # u_decam = iso[:, 9]
+        g_decam = iso[:, 10]
+        r_decam = iso[:, 11]
+        # i_decam = iso[:, 12]
+        z_decam = iso[:, 13]
 
         c = r_decam - z_decam
         m = g_decam
