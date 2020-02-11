@@ -49,7 +49,7 @@ surveys = odict([
          data_dir='/data/des40.b/data/decals/dr8/south_skim/',
          fracdet=None,  # '/data/des40.b/data/nshipp/projects/stream_search/data/decals_dr7_pseudo_fracdet.fits.gz',
          minmag=16.,
-         maxmag=23.5,
+         maxmag=23.0,
          stargal='EXTENDED_CLASS',
          stargal_cut=0,
          err=lambda x: 0.0010908679647672335 + \
@@ -64,12 +64,12 @@ surveys = odict([
          data_dir='/data/des40.b/data/decals/dr8/north_skim/',
          fracdet=None,
          minmag=16.,
-         maxmag=23.5,
+         maxmag=23.0,
          stargal='EXTENDED_CLASS',
          stargal_cut=0,
          err=lambda x: 6.31366550e-04 + \
              np.exp((x - 2.57279516e+01) / 1.15917318e+00),
-         C=[0.05, 0.1],
+         C=[0.05, 0.5],
          E=2.,
          moduli=[14, 20])),
     ('SDSS_DR13',  # star galaxy separation?

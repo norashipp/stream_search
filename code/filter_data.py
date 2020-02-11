@@ -12,8 +12,8 @@ import surveys
 # CMD CUT #
 ###########
 
-# HOMEDIR = '/home/s1/nshipp/'
-HOMEDIR = '/Users/nora/'
+HOMEDIR = '/home/s1/nshipp/'
+# HOMEDIR = '/Users/nora/'
 
 
 def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
@@ -154,6 +154,9 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
 
 
 def select_isochrone_grz(mag_g, mag_r, mag_z, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
+    if survey == 'BASS':
+        C = [0.1, 0.05]
+    
     mu, age, z = iso_params
 
     mk = mkpol_grz(mu=mu, age=age, z=z, dmu=dmu,
