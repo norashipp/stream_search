@@ -69,7 +69,7 @@ surveys = odict([
          stargal_cut=0,
          err=lambda x: 6.31366550e-04 + \
              np.exp((x - 2.57279516e+01) / 1.15917318e+00),
-         C=[0.05, 0.1],
+         C=[0.05, 0.5],
          E=2.,
          moduli=[14, 20])),
     ('SDSS_DR13',  # star galaxy separation?
