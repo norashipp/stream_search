@@ -362,61 +362,86 @@ def plot_stream(stream, hpxcube, fracdet, modulus):
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
 
-    survey = 'DECaLS'
+    survey = 'BASS' # 'DECaLS'
     proj = 'ortho'
 
+    # if survey == 'DECaLS':
+    #     coords = 'stream'
+    #     coord_stream = 'Lethe'
+    #     vmin, vmax = 0, 15
+    #     xsize = 1000
+    #     sigma = 0.3
+    #     version = 4
+    #     filename = '../data/decals_dr8_iso_hpxcube_v%i.fits.gz' % version
+    #     movdir = '../plots/decals/v%i/' % version
+
+    #     # stream = 'Lethe'
+    #     mw_streams = galstreams.MWStreams(verbose=False)
+    #     if coords == 'cel':
+    #         center = (mw_streams[stream].ra.mean(),
+    #                   mw_streams[stream].dec.mean())
+    #     elif coords == 'gal':
+    #         center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
+    #     elif coords == 'stream':
+    #         center = 0, 0
+    #     background_center = center
+
     if survey == 'DECaLS':
-        coords = 'stream'
-        coord_stream = 'Lethe'
+        coord_stream = None
+        coords = 'cel'
+        lon, lat = -5, 10 # 190, 0
+        center = (lon, lat)
+        # vmin, vmax = 0, 12
         vmin, vmax = 0, 15
         xsize = 1000
-        sigma = 0.3
-        version = 4
+        sigma = 0.2
+        version = 6
         filename = '../data/decals_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/decals/v%i/' % version
 
         # stream = 'Lethe'
         mw_streams = galstreams.MWStreams(verbose=False)
-        if coords == 'cel':
-            center = (mw_streams[stream].ra.mean(),
-                      mw_streams[stream].dec.mean())
-        elif coords == 'gal':
-            center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
-        elif coords == 'stream':
-            center = 0, 0
+        if center is None:
+            if coords == 'cel':
+                center = (mw_streams[stream].ra.mean(),
+                          mw_streams[stream].dec.mean())
+            elif coords == 'gal':
+                center = (mw_streams[stream].l.mean(), mw_streams[stream].b.mean())
+            elif coords == 'stream':
+                center = 0, 0
         background_center = center
 
     if survey == 'BASS':
-        # coords = 'cel'
-        # lon, lat = 190, 80
-        coords = 'gal'
         coord_stream = None
-        lon, lat = 120, 50
+        coords = 'cel'
+        lon, lat = 190, 80
+        # coords = 'gal'
+        # lon, lat = 120, 50
         vmin, vmax = -5, 3
         xsize = 1000
         sigma = 0.2
-        version = 0
+        version = 6
         filename = '../data/bass_dr8_iso_hpxcube_v%i.fits.gz' % version
         movdir = '../plots/bass/v%i/' % version
         center = (lon, lat)
-        background_center=(190, 80)
+        background_center = (190, 80)
 
     if center[0] > 180:
         center = (center[0] - 360, center[1])
 
     hpxcube, fracdet, modulus = load_hpxcube(filename)
+    modulus = np.arange(14, 18.05, 0.1)
 
     for mu in modulus:
         if os.path.exists(movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu)):
             print('Skipping m-M = %.1f' % mu)
             continue
         print('Plotting m-M = %.1f...' % mu)
-        data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100,
-                              plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
-        bkg = 0
-        # bkg = fit_background(data, center=background_center, coords=coords,
-        #                      coord_stream=coord_stream, sigma=sigma, deg=5)
-        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj=proj, xsize=xsize, smooth=sigma, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
+        data = prepare_hpxmap(mu, hpxcube, fracdet, modulus, clip=100, plane=False, center=False, sgr=False, bmax=25, cmax=40, sigma=sigma)
+        # bkg = 0
+        bkg = fit_background(data, center=background_center, coords=coords, coord_stream=coord_stream, sigma=sigma, deg=5)
+        smap = plot_density(data, bkg, coord_stream=coord_stream, center=center, vmin=vmin, vmax=vmax, coords=coords, proj=proj,
+                            xsize=xsize, smooth=sigma, filename=movdir + 'density_%s_%s_%.2f.png' % (survey, coord_stream, mu))
 
         # plot_streams(smap, mu, dmu=2, coords=coords, coord_stream=coord_stream,
         # filename=movdir + 'density_%s_%s_%.2f_streams.png' % (survey,
