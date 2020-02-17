@@ -39,15 +39,20 @@ def get_stream(ends, survey='DECaLS', filename='cutout.fits'):
     filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5)]
     columns = ['RA', 'DEC', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'EXTENDED_CLASS']
 
+    print('Loading data...')
     data = load_infiles(filenames, columns=columns, multiproc=32)
 
+    print('Selecting data...')
     sel = (data['EXTENDED_CLASS'] == 0) & (data['MAG_SFD_G'] < 23.5) & (data['MAG_SFD_G'] > 16) & (data['MAG_SFD_G'] - data['MAG_SFD_R'] > 0) & (data['MAG_SFD_G'] - data['MAG_SFD_R'] < 1)
+    data = data[sel]
 
+    print('Converting coordinates...')
     R = streamlib.get_rotmat(ends=ends)
     phi1, phi2 = phi12_rotmat(data['RA'], data['DEC'], R)
 
-    sel &= (np.abs(phi1) < (length / 2. + 5)) & (np.abs(phi2) < 5)
+    sel = (np.abs(phi1) < (length / 2. + 5)) & (np.abs(phi2) < 5)
 
+    print('Writing data...')
     tab = table.Table(data[sel])
     tab.write(filename)
 
