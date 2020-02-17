@@ -1,5 +1,5 @@
 import numpy as np
-
+import os
 from astropy import table
 
 from ugali.utils import healpix
