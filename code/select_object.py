@@ -67,4 +67,4 @@ if __name__ == '__main__':
     # ends = [[19.465113557599395, -26.584615187212712], [31.04372386479431, -32.98118501241838]]
     # ends = [[stream.end_f.ra.deg, stream.end_f.dec.deg], [stream.end_o.ra.deg, stream.end_o.dec.deg]]
     ends = [[31.04372386, -32.98118501], [20.082460505880235, -56.996486198871246]]
-    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/ATLAS_cutout.fits')
+    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Phoenix_cutout.fits')
