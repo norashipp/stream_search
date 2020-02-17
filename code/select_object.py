@@ -61,4 +61,4 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
 if __name__ == '__main__':
     stream = 'ATLAS'
     ends = [[19.465113557599395, -26.584615187212712], [31.04372386479431, -32.98118501241838]]
-    get_stream(ends, survey='DECaLS', filename='/data/des40.b/data/nshipp/stream_search/data/cutouts/ATLAS_cutout.fits')
+    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/ATLAS_cutout.fits')
