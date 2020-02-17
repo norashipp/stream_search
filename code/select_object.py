@@ -7,6 +7,7 @@ from ugali.utils.projector import angsep
 from utils_alex import load_infiles
 
 import streamlib
+from rotation_matrix import phi12_rotmat
 
 
 def get_object(ra, dec, survey='DECaLS'):
