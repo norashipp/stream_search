@@ -3,7 +3,7 @@ import numpy as np
 from astropy import table
 
 from ugali.utils import healpix
-from ugali.utils import load_infiles
+from ugali.utils.projector import angsep
 from utils_alex import load_infiles
 
 import streamlib
