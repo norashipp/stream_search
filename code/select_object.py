@@ -39,7 +39,7 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
 
     length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
-    filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5)]
+    filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5) if os.path.exists(filename % i)]
     columns = ['RA', 'DEC', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'EXTENDED_CLASS']
 
     print('Loading data...')
