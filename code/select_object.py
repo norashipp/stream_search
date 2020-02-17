@@ -10,7 +10,7 @@ import streamlib
 from rotation_matrix import phi12_rotmat
 
 
-def get_object(ra, dec, survey='DECaLS'):
+def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
         filename = '/data/des40.b/data/decals/dr8/south_skim/decals-dr8-sweep_%0.5d.fits'
     elif survey == 'BASS':
@@ -26,10 +26,10 @@ def get_object(ra, dec, survey='DECaLS'):
     sel &= (sep < 0.1)
 
     tab = table.Table(data[sel])
-    tab.write(filename)
+    tab.write(outfile)
 
 
-def get_stream(ends, survey='DECaLS', filename='cutout.fits'):
+def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
         filename = '/data/des40.b/data/decals/dr8/south_skim/decals-dr8-sweep_%0.5d.fits'
     elif survey == 'BASS':
@@ -55,7 +55,7 @@ def get_stream(ends, survey='DECaLS', filename='cutout.fits'):
 
     print('Writing data...')
     tab = table.Table(data[sel])
-    tab.write(filename)
+    tab.write(outfile)
 
 
 if __name__ == '__main__':
