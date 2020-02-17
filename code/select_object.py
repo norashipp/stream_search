@@ -9,6 +9,8 @@ from utils_alex import load_infiles
 import streamlib
 from rotation_matrix import phi12_rotmat
 
+import galstreams
+
 
 def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
@@ -59,6 +61,10 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
 
 
 if __name__ == '__main__':
-    stream = 'ATLAS'
-    ends = [[19.465113557599395, -26.584615187212712], [31.04372386479431, -32.98118501241838]]
+    # stream = sys.argv[1]
+    # mw_streams = galstreams.MWStreams(verbose=False)
+    # stream = mw_streams[stream]
+    # ends = [[19.465113557599395, -26.584615187212712], [31.04372386479431, -32.98118501241838]]
+    # ends = [[stream.end_f.ra.deg, stream.end_f.dec.deg], [stream.end_o.ra.deg, stream.end_o.dec.deg]]
+    ends = [[31.04372386, -32.98118501], [20.082460505880235, -56.996486198871246]]
     get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/ATLAS_cutout.fits')
