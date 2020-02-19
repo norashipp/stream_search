@@ -185,7 +185,11 @@ def fit_bkg(data, proj, sigma=0.1, percent=[2, 95], deg=5):
 
     sel = ~data.mask
     x, y = proj.ang2xy(lon[sel], lat[sel], lonlat=True)
-    sel2 = ~np.isnan(x) & ~np.isnan(y)
+    
+    xmin, xmax, ymin, ymax = proj.get_extent()
+    sel2 = (x > xmin) & (x < xmax) & (y > ymin) & (y < ymax)
+    # sel2 = ~np.isnan(x) & ~np.isnan(y)
+    
     v = data[sel][sel2]
     x = x[sel2]
     y = y[sel2]
@@ -204,14 +208,26 @@ def prepare_data(mu, hpxcube, modulus, fracdet, fracmin=0.5, clip=100, sigma=0.1
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
+    fracdet = np.ones(hpxmap.size)
+    fracdet[hpxmap == hp.UNSEEN] = 0
+
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
+    # data = np.ma.array(hpxmap, mask=fracdet < 0.5)
+    # data = np.ma.array(hpxmap, mask=hpxmap == hp.UNSEEN)
+    data.fill_value = 0
+    # data = hpxmap
 
     # vmin, vmax = np.percentile(data.compressed(), q=percent)
     # data = np.clip(data, vmin, vmax)
-    data.fill_value = np.ma.median(data)
 
-    data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False),
-                       mask=data.mask)
+    # data.fill_value = np.ma.median(data)
+    
+    # print(data.fill_value)
+    # print(np.unique(data[~data.mask][~np.isnan(data[~data.mask])]))
+
+    # data = np.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False))
+    data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False), mask=data.mask)
+    # data = np.ma.array(hp.smoothing(data, sigma=np.radians(sigma), verbose=False))
 
     data.fill_value = np.ma.median(data)
 
