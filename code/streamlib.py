@@ -315,8 +315,7 @@ def degrade(nside, hpxmap):
 
 def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask_kw=dict()):
     nside = hp.get_nside(hpxmap)
-    mask = (fracdet < fracmin) | (hpxmap > np.percentile(
-        hpxmap, clip)) | make_mask(nside, **mask_kw)
+    mask = (fracdet < fracmin) | (hpxmap > np.percentile(hpxmap, clip)) | make_mask(nside, **mask_kw)
     data = np.ma.array(hpxmap, mask=mask, fill_value=np.nan)
     data /= fracdet
     return data
