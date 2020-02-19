@@ -79,6 +79,9 @@ def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
 
 
 def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0.2, **mask_kw):
+    fracdet = np.ones(hpxmap.size)
+    fracdet[hpxmap == hp.UNSEEN] = 0
+
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
