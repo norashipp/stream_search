@@ -41,6 +41,8 @@ import results
 from streams import GLOBULARS, DWARFS, GALAXIES
 import elysian
 
+import load_stream
+
 import galstreams
 import rotation_matrix
 
@@ -227,6 +229,22 @@ def mask_dwarfs(nside=256):
     return mask
 
 
+def mask_more_globs_dwarfs(nside=256):
+    # File from Adrian - McConnachie+2012, Simon+2018, DES papers for the dwarfs, and Vasiliev+2018 for the globular clusters
+    """ Mask sources """
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+
+    globs_dwarfs = fitsio.read('../data/MW_dwarfs_globs.fits')
+
+    for gd in globs_dwarfs:
+        radius = 5 * gd['r_h'] / 60.0
+        if radius >= 2.0:
+            radius = 2.0
+        pix = ang2disc(nside, gd['ra'], gd['dec'], radius, inclusive=True)
+        mask[pix] = True
+    return mask
+
+
 def mask_galaxies(nside=256):
     """ Mask sources """
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
@@ -258,7 +276,7 @@ def mask_center(nside=256, cmax=25):
     return mask
 
 
-def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, cmax=25):
+def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, cmax=25):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
     if lmc:
         mask |= mask_lmc(nside)
@@ -278,6 +296,8 @@ def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dw
         mask |= mask_plane(nside, bmax)
     if center:
         mask |= mask_center(nside, cmax)
+    if globs_dwarfs:
+        mask |= mask_more_globs_dwarfs(nside)
     return mask
 
 

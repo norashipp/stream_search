@@ -35,7 +35,8 @@ def area_correction(data_on, data_off, nside=256):
     return npix_on / npix_off
 
 
-def plot_hess(stream, data_on, data_off=None, gmax=23.5, gmin=16, grmax=1, grmin=0, vmin=None, vmax=None, dx=0.2 / 5., dy=1. / 6., ax=None, gband='PSF_MAG_SFD_G', rband='PSF_MAG_SFD_R'):
+def plot_hess(stream, data_on, data_off=None, gmax=23.5, gmin=16, grmax=1, grmin=0, vmin=None, vmax=None, dx=0.2 / 5., dy=1. / 6., ax=None, gband='PSF_MAG_SFD_G', rband='PSF_MAG_SFD_R', no_bkg=False, smoothing=0.75):
+    print('dx, dy = ', dx, dy)
     xbins = np.arange(grmin, grmax + dx, dx)
     ybins = np.arange(gmin, gmax + dy, dy)
 
@@ -54,8 +55,10 @@ def plot_hess(stream, data_on, data_off=None, gmax=23.5, gmin=16, grmax=1, grmin
         h_off, bx, by = np.histogram2d(gr2, g2, bins=[xbins, ybins])
         h_off *= area_correction(data_on, data_off)
     hdiff = h_on - h_off
+    if no_bkg:
+        hdiff = h_on
 
-    smooth = gaussian_filter(hdiff, 0.75)
+    smooth = gaussian_filter(hdiff, smoothing)
 
     if ax == None:
         plt.figure(figsize=(5, 6))
@@ -65,7 +68,7 @@ def plot_hess(stream, data_on, data_off=None, gmax=23.5, gmin=16, grmax=1, grmin
     plt.title(r'$\mathrm{%s}$' % stream)
     im1 = plt.imshow(smooth.T, origin='upper', aspect='auto', extent=[
                      grmin, grmax, gmax, gmin], interpolation='none', cmap='binary', rasterized=True, vmin=vmin, vmax=vmax)
-    # colorbar(im1)
+    colorbar(im1)
 
     plt.xlabel(r'$g-r$')
     plt.ylabel(r'$g$')
