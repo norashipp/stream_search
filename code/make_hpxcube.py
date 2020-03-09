@@ -31,8 +31,9 @@ def run(arguments):
     mod = arguments
     print("m-M = %.1f..." % (mod))
 
-    gmin = 19.5 - (16.8 - mod)
-
+    # gmin = 19.5 - (16.8 - mod)
+    gmin =  20.2 - (16.8 - mod)
+    
     sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[
         mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
