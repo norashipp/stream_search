@@ -19,7 +19,7 @@ def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits', radius=0.1):
         filename = '/data/des40.b/data/decals/dr8/north_skim/decals-dr8-sweep_%0.5d.fits'
 
     filenames = [filename % i for i in healpix.ang2disc(32, ra, dec, np.maximum(5, radius * 2))]
-    columns = ['RA', 'DEC', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'EXTENDED_CLASS']
+    columns = ['RA', 'DEC', 'MAG_G', 'MAG_R', 'MAG_Z', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'EXTENDED_CLASS']
 
     data = load_infiles(filenames, columns=columns, multiproc=32)
 
@@ -40,7 +40,7 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
     filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5) if os.path.exists(filename % i)]
-    columns = ['RA', 'DEC', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'EXTENDED_CLASS']
+    columns = ['RA', 'DEC', 'MAG_G', 'MAG_R', 'MAG_Z', 'MAG_SFD_G', 'MAG_SFD_R', 'MAG_SFD_Z', 'MAG_G', 'MAG_R', 'MAG_Z', 'EXTENDED_CLASS']
 
     print('Loading data...')
     data = load_infiles(filenames, columns=columns, multiproc=32)
@@ -66,5 +66,9 @@ if __name__ == '__main__':
     # stream = mw_streams[stream]
     # ends = [[19.465113557599395, -26.584615187212712], [31.04372386479431, -32.98118501241838]]
     # ends = [[stream.end_f.ra.deg, stream.end_f.dec.deg], [stream.end_o.ra.deg, stream.end_o.dec.deg]]
-    ends = [[31.04372386, -32.98118501], [20.082460505880235, -56.996486198871246]]
-    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Phoenix_cutout.fits')
+    # ends = [[31.04372386, -32.98118501], [20.082460505880235, -56.996486198871246]]
+    # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Phoenix_cutout.fits')
+    ends = [[-15.565158278830129, 9.145015179988334], [-9.804650620987337, 17.42797474620764]]
+    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Pal13_2.fits.gz')
+
+
