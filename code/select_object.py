@@ -87,5 +87,5 @@ if __name__ == '__main__':
     # ends = [[-15.565158278830129, 9.145015179988334], [-9.804650620987337, 17.42797474620764]]
     # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Pal13_2.fits.gz')
     ra_ngc1851, dec_ngc1851 =  78.528, -40.047
-    get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30)
+    get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30, outfile='../data/NGC1851_DES_Y6.fits.gz')
 
