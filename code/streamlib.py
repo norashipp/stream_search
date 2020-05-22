@@ -46,7 +46,8 @@ import load_stream
 import galstreams
 import rotation_matrix
 
-DATADIR = os.path.join(dirname(realpath(__file__)), '../data')
+# DATADIR = os.path.join(dirname(realpath(__file__)), '../data')
+DATADIR = os.path.join(dirname(realpath(__file__)), '/Users/nora/projects/stream_search/data')
 STREAMFILE = os.path.join(DATADIR, 'streams_v6.0.yaml')
 
 
@@ -184,11 +185,66 @@ def mask_lmc(nside=256):
     return mask
 
 
+def mask_milky_way_north_3(nside=256):
+    from matplotlib.path import Path
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
+    ra = ra - 360 * (ra > 180)
+    vertices = [[-50, 90], [-130, 30], [-50, 30]]
+    mask[Path(vertices).contains_points(np.array([ra, dec]).T)] = True
+    return mask
+
+
+def mask_milky_way_north_2(nside=256):
+    from matplotlib.path import Path
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
+    ra = ra - 360 * (ra > 180)
+    vertices = [[-12, 36], [-22, -20], [-60, -15], [-40, 27]]
+    mask[Path(vertices).contains_points(np.array([ra, dec]).T)] = True
+    return mask
+
+
+def mask_milky_way_north(nside=256):
+    from matplotlib.path import Path
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
+    ra = ra - 360 * (ra > 180)
+    vertices = [[-125, -3], [-110, 35], [-88, 35], [-103, -1], [-125, -3]]
+    mask[Path(vertices).contains_points(np.array([ra, dec]).T)] = True
+    return mask
+
+
 def mask_milky_way(nside=256):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
     ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
     #mask[(ra < 304) & (ra > 295) & (dec > -60) & (dec < -40)] = True
     mask[(ra < 315) & (ra > 295) & (dec > -70) & (dec < -35)] = True
+    return mask
+
+
+def mask_acs(nside=256):
+    from matplotlib.path import Path
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
+    # vertices = [[121, 60], [130, 60], [-70 + 360, 63], [-77 + 360, 55]]
+    # vertices = [[130, 60], [135, 65], [155, 75], [-140+360, 80], [-100+360, 72], [-90+360, 65], [-80+360, 60], [-75+360, 68], [-85+360, 78], [-150+360, 86], [140, 80], [125, 75], [125, 70], [120, 60], [130, 60]]
+    # vertices = [[-81.20842981166365+360, 60.02847479426181], [-103.18991410673861+360, 71.44587167686264], [-139.29088384800647+360, 77.70003482326835], [162.456378757321, 74.84730497914623], [133.21261597970803, 61.14200024319528], [119.66962482115947, 60.05509696491776], [120.47322378748359, 70.6530402996451], [159.60586655370196, 83.52806532949364], [-83.9730393866897+360, 77.83186299691168], [-73.65549049748984+360, 67.61016199435278]]
+    vertices = np.array([[129.0948921713502, 62.52810768283558], [133.63357495373106, 66.79929543092777], [139.99127285541002, 71.18224005454947], [150.56539516173876, 75.29338855683497], [168.56101032015746, 79.16443785287761], [-163.2546873976258, 80.94741486188961], [-135.54629935256855, 79.87729083771019], [-111.91899764770008, 76.26405863933468], [-97.34702120529064, 71.62669968091069], [-93.82267929110368, 67.2709685408379], [-86.99439599698219, 63.61224297643058], [-78.6869084100243, 68.68932790216034], [-80.80161083732156, 72.72211970974755],
+                         [-85.2655169949618, 75.79296094818497], [-92.50988663530084, 80.38692902617865], [-102.86187563750477, 82.74627019631558], [-139.84688477685475, 85.9680487649359], [177.27997933346577, 86.06424242318538], [158.10739160942848, 84.2624478173823], [139.38461451738698, 81.55584566801063], [137.38898697973735, 79.79972916219887], [132.22455296516068, 77.23410025797286], [130.36894206992676, 73.82593566527407], [128.6008401703078, 69.74585710631004], [124.44422835367168, 65.38883293725237], [124.6106442460963, 63.08164363064252]])
+    vertices[:, 0][vertices[:, 0] < 0] += 360
+    mask[Path(vertices).contains_points(np.array([ra, dec]).T)] = True
+    return mask
+
+
+def mask_sgr_north(nside=256):
+    from matplotlib.path import Path
+    mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    ra, dec = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)), lonlat=True)
+    # ra = ra - 360 * (ra > 180)
+    # vertices = [[120, 15], [120, 23], [-125+360, -3], [-130+360, -10]]
+    vertices = [[120, 15], [120, 26], [-125 + 360, 0], [-130 + 360, -10]]
+    mask[Path(vertices).contains_points(np.array([ra, dec]).T)] = True
     return mask
 
 
@@ -276,14 +332,20 @@ def mask_center(nside=256, cmax=25):
     return mask
 
 
-def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, cmax=25):
+# lmc=False, milky_way=False, sgr=False, globulars=False, dwarfs=False, galaxies=False, plane=False, bmax=25, center=False, globs_dwarfs=False, acs=False
+
+def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
     if lmc:
         mask |= mask_lmc(nside)
     if milky_way:
         mask |= mask_milky_way(nside)
+        mask |= mask_milky_way_north(nside)
+        mask |= mask_milky_way_north_2(nside)
+        mask |= mask_milky_way_north_3(nside)
     if sgr:
         mask |= mask_sgr(nside)
+        mask |= mask_sgr_north(nside)
     if globulars:
         mask |= mask_globulars(nside)
     if dwarfs:
@@ -298,6 +360,8 @@ def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dw
         mask |= mask_center(nside, cmax)
     if globs_dwarfs:
         mask |= mask_more_globs_dwarfs(nside)
+    if acs:
+        mask |= mask_acs(nside)
     return mask
 
 
@@ -321,7 +385,7 @@ def prepare_data(hpxmap, fracdet, fracmin=FRACMIN, clip=None, degrade=None, mask
     return data
 
 
-def get_rotmat(stream=None, ends=None):
+def get_rotmat(stream=None, ends=None, center=None):
     if stream is not None:
         print(stream)
         mw_streams = galstreams.MWStreams(verbose=False)
@@ -333,14 +397,17 @@ def get_rotmat(stream=None, ends=None):
         print('Need stream name or ends!')
 
     phi, theta, psi = results.euler_angles(
-        ends[0][0], ends[0][1], ends[1][0], ends[1][1])
+        ends[0][0], ends[0][1], ends[1][0], ends[1][1], center)
+
+    print(phi, theta, psi)
 
     R = results.create_matrix(phi, theta, psi)
     return R
 
 
-def get_streampix(data, stream=None, ends=None):
-    R = get_rotmat(stream=stream, ends=ends)
+def get_streampix(data, stream=None, ends=None, R=None):
+    if R is None:
+        R = get_rotmat(stream=stream, ends=ends)
     nside = hp.get_nside(data)
     lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)
     streampix = hp.ang2pix(

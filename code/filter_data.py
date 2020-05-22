@@ -12,11 +12,11 @@ import surveys
 # CMD CUT #
 ###########
 
-HOMEDIR = '/home/s1/nshipp/'
-# HOMEDIR = '/Users/nora/'
+# HOMEDIR = '/home/s1/nshipp/'
+HOMEDIR = '/Users/nora/'
 
 
-def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
+def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS', clip=None):
     if err == None:
         print('Using DES err!')
         err = surveys.surveys['DES_DR1']['err']
@@ -66,6 +66,13 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
         c = iso.color
         m = iso.mag
 
+    if clip is not None:
+        # Clip for plotting, use gmin otherwise
+        # clip abs mag
+        cut = (m > clip) & ((m + mu) < 23.0) & (c > 0) & (c < 1)
+        c = c[cut]
+        m = m[cut]
+
     mnear = m + mu - dmu / 2.
     mfar = m + mu + dmu / 2.
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
@@ -85,7 +92,7 @@ def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5
     return idx
 
 
-def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS'):
+def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS', clip=None):
     if err == None:
         print('Using DES err!')
         err = surveys.surveys['DES_DR1']['err']
@@ -146,6 +153,12 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
     else:
         print('Survey error - update isochrones.')
 
+    if clip is not None:
+        # Clip for plotting, use gmin otherwise
+        cut = (m > clip) & ((m + mu) < 23.0) & (c > 0) & (c < 1)
+        c = c[cut]
+        m = m[cut]
+
     mnear = m + mu - dmu / 2.
     mfar = m + mu + dmu / 2.
     C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
@@ -156,7 +169,7 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
 def select_isochrone_grz(mag_g, mag_r, mag_z, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
     if survey == 'BASS':
         C = [0.1, 0.05]
-    
+
     mu, age, z = iso_params
 
     mk = mkpol_grz(mu=mu, age=age, z=z, dmu=dmu,

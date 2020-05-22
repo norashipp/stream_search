@@ -42,11 +42,11 @@ import elysian
 HOMEDIR = '/home/s1/nshipp/'
 
 
-def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8)):
+def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8), tex=True):
     # import pyplot and set some parameters to make plots prettier
 
     plt.rc('savefig', dpi=dpi)
-    plt.rc('text', usetex=True)
+    plt.rc('text', usetex=tex)
     plt.rc('font', size=fontsize)
     plt.rc('xtick.major', pad=5)
     plt.rc('xtick.minor', pad=5)
@@ -59,28 +59,28 @@ def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8)):
     mpl.rcParams.update({'figure.autolayout': True})
 
 
-def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
-    print("Reading %s..." % filename)
-    f = fitsio.FITS(filename)
-    hpxcube = f['HPXCUBE'].read()
-    try:
-        fracdet = f['FRACDET'].read()
-        print('fracdet test', np.sum(fracdet > 0.5))
-    except:
-        print('Skipping fracdet...')
-        fracdet = np.zeros_like(hpxcube[:, 0])
-        fracdet[np.where(hpxcube[:, 0] > 0)] = 1
-    try:
-        modulus = f['MODULUS'].read()
-    except:
-        print('Error reading modulus...')
-        modulus = np.array([16.])
-    return hpxcube, fracdet, modulus
+# def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
+#     print("Reading %s..." % filename)
+#     f = fitsio.FITS(filename)
+#     hpxcube = f['HPXCUBE'].read()
+#     try:
+#         fracdet = f['FRACDET'].read()
+#         print('fracdet test', np.sum(fracdet > 0.5))
+#     except:
+#         print('Skipping fracdet...')
+#         fracdet = np.zeros_like(hpxcube[:, 0])
+#         fracdet[np.where(hpxcube[:, 0] > 0)] = 1
+#     try:
+#         modulus = f['MODULUS'].read()
+#     except:
+#         print('Error reading modulus...')
+#         modulus = np.array([16.])
+#     return hpxcube, fracdet, modulus
 
 
 def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0.2, **mask_kw):
-    fracdet = np.ones(hpxmap.size)
-    fracdet[hpxmap == hp.UNSEEN] = 0
+    # fracdet = np.ones(hpxmap.size)
+    # fracdet[hpxmap == hp.UNSEEN] = 0
 
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
@@ -249,7 +249,9 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
 
 
 def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None, width=0.3, sigma=0.2, delta=0.2, vmin=-1, vmax=5, filename=None):
-    if stream is not None:
+    if ends is not None:
+        pass        
+    elif stream is not None:
         mw_streams = galstreams.MWStreams(verbose=False)
         ends = [(mw_streams[stream].end_f.ra.value, mw_streams[stream].end_f.dec.value),
                 (mw_streams[stream].end_o.ra.value, mw_streams[stream].end_o.dec.value)]
@@ -277,7 +279,10 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
     height = max(1.2 * 6 * width, 5)
     length = max(1.2 * length, 1.5 * height)
 
-    streampix = streamlib.get_streampix(data=data, stream=stream, ends=ends)
+    if ends is not None:
+        streampix = streamlib.get_streampix(data=data, stream=None, ends=ends)
+    else:
+        streampix = streamlib.get_streampix(data=data, stream=stream, ends=ends)
 
     # delta = 0.1
     aspect = float(height) / length
