@@ -32,7 +32,7 @@ def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits', radius=0.1):
 
 
 def get_object_desy6(ra, dec, outfile='cutout.fits', radius=0.1):
-    filename = ''
+    filename = '/data/des81.b/data/mmcnanna/y6a1/skim_y6_gold_1_1/y6_gold_1_0_%0.5d.fits'
 
     filenames = [filename % i for i in healpix.ang2disc(32, ra, dec, np.maximum(5, radius * 2))]
     columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_R', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
