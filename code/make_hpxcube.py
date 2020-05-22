@@ -19,7 +19,7 @@ import cPickle as pickle
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
-from alex_utils import load_infiles
+from utils_alex import load_infiles
 from ugali.utils import healpix
 # from ugali.analysis.isochrone import factory as isochrone_factory
 
