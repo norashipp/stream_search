@@ -21,7 +21,7 @@ from astropy.coordinates import SkyCoord
 
 from utils import load_infiles
 from ugali.utils import healpix
-from ugali.analysis.isochrone import factory as isochrone_factory
+# from ugali.analysis.isochrone import factory as isochrone_factory
 
 from surveys import surveys
 import filter_data
@@ -31,14 +31,11 @@ def run(arguments):
     mod = arguments
     print("m-M = %.1f..." % (mod))
 
-    # gmin = 19.5 - (16.8 - mod)
-    gmin =  20.2 - (16.8 - mod)
-    
-    sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[
-        mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+    gmin = 3.4 + mod # 3.4 abs mag cutoff
 
-    sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[
-        mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+    sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+
+    sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
     sel = sel1 & sel2
 

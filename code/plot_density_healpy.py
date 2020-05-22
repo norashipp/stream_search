@@ -85,7 +85,10 @@ def plot_stream(hpxcube, modulus, stream=None, ends=None, mu_min=14.0, mu_max=20
         nside = hp.npix2nside(hpxmap.shape[0])
         func = lambda x, y, z: hp.vec2pix(nside, x, y, z)
 
-        hpxmap_smooth = hp.smoothing(hpxmap, sigma=np.radians(smoothing), verbose=False)
+        if smoothing > 0:
+            hpxmap_smooth = hp.smoothing(hpxmap, sigma=np.radians(smoothing), verbose=False)
+        else:
+            hpxmap_smooth = hpxmap
         proj = hp.projector.GnomonicProj(xsize=1024, ysize=800, rot=[phi, theta, psi], reso=reso)
         img = proj.projmap(hpxmap_smooth, func)
 
@@ -99,11 +102,6 @@ def plot_stream(hpxcube, modulus, stream=None, ends=None, mu_min=14.0, mu_max=20
 
         if plot_streams:
             plot_stream_footprints(ax, proj, mu, dmu=100)
-
-        if plot_streams:
-            leg = plt.legend(bbox_to_anchor=(1, 1), loc='upper left', ncol=1, fontsize=15, frameon=False)
-            for lh in leg.legendHandles:
-                lh._legmarker.set_alpha(1)
 
         if save:
             if plot_streams:
@@ -140,7 +138,9 @@ def plot_dwarfs_gcs(ax, proj, mu, dmu=0.5):
 
     ax.scatter(x_array, y_array, s=50, marker='o', facecolors='none', edgecolors='b')
     for i in range(len(x_array)):
-        plt.annotate(name_array[i], (x_array[i] + 0.01, y_array[i] + 0.01), color='b')
+        # name = (r'$\mathrm{%s}$' %name_array[i]).replace(' ', '\ ')
+        name = name_array[i]
+        plt.annotate(name, (x_array[i] + 0.01, y_array[i] + 0.01), color='b')
 
     ax.set_xlim(xlim[0], xlim[1])
     ax.set_ylim(ylim[0], ylim[1])
@@ -155,7 +155,7 @@ def plot_stream_footprints(ax, proj, mu, dmu=0.5):
         if stream_name in ['Her-Aq', 'EriPhe', 'Sgr-L10']:
             continue
         mu_stream = dist2mod(mw_streams[stream_name].Rhel[0])
-        if np.abs(mu - mu_stream) < 100:
+        if np.abs(mu - mu_stream) < dmu:
             x, y = proj.ang2xy(mw_streams[stream_name].ra, mw_streams[stream_name].dec, lonlat=True)
             idx = ~np.isnan(x) & ~np.isnan(y)
             x, y = x[idx], y[idx]
@@ -165,6 +165,10 @@ def plot_stream_footprints(ax, proj, mu, dmu=0.5):
 
     ax.set_xlim(xlim[0], xlim[1])
     ax.set_ylim(ylim[0], ylim[1])
+
+    leg = plt.legend(bbox_to_anchor=(1, 1), loc='upper left', fontsize=15, frameon=False, ncol=2)
+    for lh in leg.legendHandles:
+        lh._legmarker.set_alpha(1)
 
 
 def fit_bkg(data, proj, sigma=0.1, percent=[2, 95], deg=5):
@@ -176,20 +180,15 @@ def fit_bkg(data, proj, sigma=0.1, percent=[2, 95], deg=5):
     data.fill_value = np.ma.median(data)
 
     smoothed = hp.smoothing(data, sigma=np.radians(sigma), verbose=False)
-
-    # not sure how to use astropy convolve with healpix
-    # kernel = Gaussian2DKernel(x_stddev=sigma)
-    # smoothed = convolve(data, kernel)
-
     data = np.ma.array(smoothed, mask=data.mask)
 
     sel = ~data.mask
     x, y = proj.ang2xy(lon[sel], lat[sel], lonlat=True)
-    
+
     xmin, xmax, ymin, ymax = proj.get_extent()
     sel2 = (x > xmin) & (x < xmax) & (y > ymin) & (y < ymax)
     # sel2 = ~np.isnan(x) & ~np.isnan(y)
-    
+
     v = data[sel][sel2]
     x = x[sel2]
     y = y[sel2]
@@ -208,8 +207,8 @@ def prepare_data(mu, hpxcube, modulus, fracdet, fracmin=0.5, clip=100, sigma=0.1
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
-    fracdet = np.ones(hpxmap.size)
-    fracdet[hpxmap == hp.UNSEEN] = 0
+    # fracdet = np.ones(hpxmap.size)
+    # fracdet[hpxmap == hp.UNSEEN] = 0
 
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # data = np.ma.array(hpxmap, mask=fracdet < 0.5)
@@ -221,7 +220,7 @@ def prepare_data(mu, hpxcube, modulus, fracdet, fracmin=0.5, clip=100, sigma=0.1
     # data = np.clip(data, vmin, vmax)
 
     # data.fill_value = np.ma.median(data)
-    
+
     # print(data.fill_value)
     # print(np.unique(data[~data.mask][~np.isnan(data[~data.mask])]))
 
@@ -249,8 +248,10 @@ def get_euler(stream=None, ends=None):
     return phi, theta, psi
 
 
-def get_gnomonic_proj(stream=None, ends=None, xsize=1024, ysize=800, reso=3.0):
-    if ends is not None:
+def get_gnomonic_proj(stream=None, ends=None, rot=None, xsize=1024, ysize=800, reso=3.0):
+    if rot is not None:
+        phi1, theta, psi = rot
+    elif ends is not None:
         print('Using ends = ', ends)
         phi, theta, psi = get_euler(ends=ends)
     else:
@@ -276,7 +277,18 @@ def get_mollweide_proj(stream=None, ends=None, xsize=1024):
     return proj
 
 
-def plot_proj(proj, data, q=[5, 90], vmin=None, vmax=None):
+def get_ortho_proj(stream=None, ends=None, half_sky=True, **kwargs):
+    if ends is not None:
+        phi, theta, psi = get_euler(ends=ends)
+    else:
+        phi, theta, psi = get_euler(stream=stream)
+
+    proj = hp.projector.OrthographicProj(rot=[phi, theta, psi], half_sky=half_sky, **kwargs)
+
+    return proj
+
+
+def plot_proj(proj, data, ax=None, q=[5, 90], vmin=None, vmax=None):
     nside = hp.npix2nside(len(data))
     func = lambda x, y, z: hp.vec2pix(nside, x, y, z)
 
@@ -285,7 +297,9 @@ def plot_proj(proj, data, q=[5, 90], vmin=None, vmax=None):
     if vmin is None or vmax is None:
         vmin, vmax = get_vscale(img, q=q)
 
-    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
-    ax.imshow(img, origin='bottom', vmin=vmin, vmax=vmax, cmap='Greys', extent=proj.get_extent())
+    if ax is None:
+        fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 
-    return ax
+    im = ax.imshow(img, origin='bottom', vmin=vmin, vmax=vmax, cmap='Greys', extent=proj.get_extent())
+
+    return ax, im
