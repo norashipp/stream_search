@@ -27,6 +27,8 @@ from surveys import surveys
 import filter_data
 
 
+GRZ = False
+
 def run(arguments):
     mod = arguments
     print("m-M = %.1f..." % (mod))
@@ -35,8 +37,7 @@ def run(arguments):
 
     sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
-    grz = False
-    if grz:
+    if GRZ:
         sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
         sel = sel1 & sel2
     else:
@@ -74,17 +75,20 @@ if __name__ == '__main__':
     ext = surveys[survey]['ext']
     stargal = surveys[survey]['stargal']
     stargal_cut = surveys[survey]['stargal_cut']
-    if ext is not None:
-        ext = surveys[survey]['ext']
-        ext_g = ext % 'G'
-        ext_r = ext % 'R'
-        ext_i = ext % 'I'
-        # fix this, not relevant for now
+    # if ext is not None:
+    #     # fix this, not relevant for now
+    #     ext = surveys[survey]['ext']
+    #     ext_g = ext % 'G'
+    #     ext_r = ext % 'R'
+    #     ext_i = ext % 'I'
     minmag = surveys[survey]['minmag']
     maxmag = surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try
     # mp search
-    columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
+    if GRZ:
+        columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
+    else:
+        columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
         columns.append(stargal)
 
