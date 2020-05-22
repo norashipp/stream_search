@@ -31,6 +31,22 @@ def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits', radius=0.1):
     tab.write(outfile)
 
 
+def get_object_desy6(ra, dec, outfile='cutout.fits', radius=0.1):
+    filename = ''
+
+    filenames = [filename % i for i in healpix.ang2disc(32, ra, dec, np.maximum(5, radius * 2))]
+    columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_R', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
+
+    data = load_infiles(filenames, columns=columns, multiproc=32)
+
+    sel = (data['EXT_SOF'] <= 1) & (data['SOF_PSF_MAG_CORRECTED_G'] < 24.5) & (data['SOF_PSF_MAG_CORRECTED_G'] > 16) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] > 0) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] < 1)
+    sep = angsep(ra, dec, data['RA'], data['DEC'])
+    sel &= (sep < radius)
+
+    tab = table.Table(data[sel])
+    tab.write(outfile)
+
+
 def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
         filename = '/data/des40.b/data/decals/dr8/south_skim/decals-dr8-sweep_%0.5d.fits'
@@ -68,7 +84,8 @@ if __name__ == '__main__':
     # ends = [[stream.end_f.ra.deg, stream.end_f.dec.deg], [stream.end_o.ra.deg, stream.end_o.dec.deg]]
     # ends = [[31.04372386, -32.98118501], [20.082460505880235, -56.996486198871246]]
     # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Phoenix_cutout.fits')
-    ends = [[-15.565158278830129, 9.145015179988334], [-9.804650620987337, 17.42797474620764]]
-    get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Pal13_2.fits.gz')
-
+    # ends = [[-15.565158278830129, 9.145015179988334], [-9.804650620987337, 17.42797474620764]]
+    # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Pal13_2.fits.gz')
+    ra_ngc1851, dec_ngc1851 =  78.528, -40.047
+    get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30)
 
