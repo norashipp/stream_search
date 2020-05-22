@@ -35,9 +35,11 @@ def run(arguments):
 
     sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
-    sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
-
-    sel = sel1 & sel2
+    if grz:
+        sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+        sel = sel1 & sel2
+    else:
+        sel = sel1
 
     d = data[sel]
 
