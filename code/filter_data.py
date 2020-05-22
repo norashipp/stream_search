@@ -32,7 +32,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     if survey in ['PS1']:
         iso = isochrone_factory(
             'Dotter', survey='ps1', age=age, distance_modulus=mu, z=z)
-    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS']:
+    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6']:
         iso = isochrone_factory('Dotter', survey='des',
                                 age=age, distance_modulus=mu, z=z)
     elif survey == 'BASS':
@@ -109,7 +109,7 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
         c = r_ps1 - z_ps1
         m = g_ps1
 
-    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS']:
+    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6']:
         iso = np.loadtxt(
             HOMEDIR + '.ugali/isochrones/des/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
 
