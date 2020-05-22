@@ -28,6 +28,18 @@ surveys = odict([
          C=[0.05, 0.1],
          E=2.,
          moduli=[15, 20])),
+    ('DES_Y6',
+     dict(
+         mag='SOF_PSF_MAG_CORRECTED_%s',
+         ext=None,
+         data_dir='/data/des81.b/data/tavangar/skim_1.1/',
+         fracdet=None,
+         minmag=16.,
+         maxmag=24.0,
+         err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419), # Y3
+         C=[0.05, 0.1],
+         E=2.,
+         moduli=[15, 20])),
     ('PS1',
      dict(
          mag='%sFPSFMAG_SFD',  # '%sPSFMAG',
