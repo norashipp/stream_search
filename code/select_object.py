@@ -110,4 +110,4 @@ if __name__ == '__main__':
     # get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_dsph_PS1.fits.gz')
 
     ra_leo2, dec_leo2 = 168.3716667, 22.1547222
-    get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/LeoII_PS1.fits.gz')
+    get_object_ps1(ra_leo2, dec_leo2, radius=10, outfile='../data/LeoII_PS1.fits.gz')
