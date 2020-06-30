@@ -52,6 +52,7 @@ surveys = odict([
          minmag=14.,  # 12.,
          maxmag=21.5,
          stargal=None,
+         stargal_cut=None,
          err=lambda x: 0.00363355415 + np.exp((x - 23.9127145) / 1.09685211),
          C=[0.05, 0.05],
          E=1.,
