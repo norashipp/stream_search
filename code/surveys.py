@@ -38,7 +38,7 @@ surveys = odict([
          maxmag=24.0,
          stargal='EXT_SOF',
          stargal_cut=1,
-         err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419), # Y3
+         err=lambda x: 0.0010908679647672335 + np.exp((x - 27.091072029215375) / 1.0904624484538419),  # Y3
          C=[0.05, 0.1],
          E=2.,
          moduli=[15, 20])),
@@ -51,6 +51,7 @@ surveys = odict([
          fracdet=None,  # '/home/s1/smau/projects/panstarrs/simple_v3/panstarrs_pseudo_fracdet.fits.gz',
          minmag=14.,  # 12.,
          maxmag=21.5,
+         stargal=None,
          err=lambda x: 0.00363355415 + np.exp((x - 23.9127145) / 1.09685211),
          C=[0.05, 0.05],
          E=1.,
@@ -71,9 +72,9 @@ surveys = odict([
          stargal_cut=0,
          err=lambda x: 0.0010908679647672335 + \
              np.exp((x - 27.091072029215375) / 1.0904624484538419),
-         C=[-0.04, 0.1], # [0.01, 0.075], # [0.05, 0.1],
-         E=2., # 3., # 4., # 2.,
-         moduli=[15., 20.])), # [14, 20])),
+         C=[-0.04, 0.1],  # [0.01, 0.075], # [0.05, 0.1],
+         E=2.,  # 3., # 4., # 2.,
+         moduli=[15., 20.])),  # [14, 20])),
     ('BASS',
      dict(
          mag='MAG_SFD_%s',
