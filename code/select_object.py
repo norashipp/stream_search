@@ -39,7 +39,8 @@ def get_object_desy6(ra, dec, outfile='cutout.fits', radius=0.1):
 
     data = load_infiles(filenames, columns=columns, multiproc=32)
 
-    sel = (data['EXT_SOF'] <= 1) & (data['SOF_PSF_MAG_CORRECTED_G'] < 24.5) & (data['SOF_PSF_MAG_CORRECTED_G'] > 16) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] > 0) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] < 1)
+    sel = (data['EXT_SOF'] <= 1) & (data['SOF_PSF_MAG_CORRECTED_G'] < 24.5) & (data['SOF_PSF_MAG_CORRECTED_G'] > 16) & (
+        data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] > 0) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] < 1)
     sep = angsep(ra, dec, data['RA'], data['DEC'])
     sel &= (sep < radius)
 
@@ -61,6 +62,7 @@ def get_object_ps1(ra, dec, outfile='cutout.fits', radius=0.1):
 
     tab = table.Table(data[sel])
     tab.write(outfile)
+
 
 def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
@@ -104,5 +106,5 @@ if __name__ == '__main__':
     # ra_ngc1851, dec_ngc1851 =  78.528, -40.047
     # get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30, outfile='../data/NGC1851_DES_Y6.fits.gz')
 
-    ra_sgr, dec_sgr =  
+    ra_sgr, dec_sgr = 283.7629167, -30.4783333
     get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_Dsph_PS1.fits.gz')
