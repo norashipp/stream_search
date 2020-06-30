@@ -6,7 +6,7 @@ from ugali.utils import healpix
 from ugali.utils.projector import angsep
 from utils_alex import load_infiles
 
-import streamlib
+# import streamlib
 from rotation_matrix import phi12_rotmat
 
 import galstreams
