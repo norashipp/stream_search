@@ -106,5 +106,8 @@ if __name__ == '__main__':
     # ra_ngc1851, dec_ngc1851 =  78.528, -40.047
     # get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30, outfile='../data/NGC1851_DES_Y6.fits.gz')
 
-    ra_sgr, dec_sgr = 283.7629167, -30.4783333
-    get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_Dsph_PS1.fits.gz')
+    # ra_sgr, dec_sgr = 283.7629167, -30.4783333
+    # get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_dsph_PS1.fits.gz')
+
+    ra_leo2, dec_leo2 = 168.3716667, 22.1547222
+    get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/LeoII_PS1.fits.gz')
