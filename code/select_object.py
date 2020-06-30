@@ -47,6 +47,21 @@ def get_object_desy6(ra, dec, outfile='cutout.fits', radius=0.1):
     tab.write(outfile)
 
 
+def get_object_ps1(ra, dec, outfile='cutout.fits', radius=0.1):
+    filename = '/home/s1/kadrlica/projects/ps1/dr1/v0/skim_ext_0_0/ps1_dr1_%0.5d.fits'
+
+    filenames = [filename % i for i in healpix.ang2disc(32, ra, dec, np.maximum(5, radius * 2)) if os.path.exists(filename % i)]
+    columns = ['RA', 'DEC', 'GFPSFMAG_SFD', 'RFPSFMAG_SFD']
+
+    data = load_infiles(filenames, columns=columns, multiproc=32)
+
+    sel = (data['GFPSFMAG_SFD'] < 21.5) & (data['GFPSFMAG_SFD'] > 14) & (data['GFPSFMAG_SFD'] - data['RFPSFMAG_SFD'] > 0) & (data['GFPSFMAG_SFD'] - data['RFPSFMAG_SFD'] < 1)
+    sep = angsep(ra, dec, data['RA'], data['DEC'])
+    sel &= (sep < radius)
+
+    tab = table.Table(data[sel])
+    tab.write(outfile)
+
 def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     if survey == 'DECaLS':
         filename = '/data/des40.b/data/decals/dr8/south_skim/decals-dr8-sweep_%0.5d.fits'
@@ -86,6 +101,8 @@ if __name__ == '__main__':
     # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Phoenix_cutout.fits')
     # ends = [[-15.565158278830129, 9.145015179988334], [-9.804650620987337, 17.42797474620764]]
     # get_stream(ends, survey='DECaLS', outfile='/data/des40.b/data/nshipp/stream_search/data/cutouts/Pal13_2.fits.gz')
-    ra_ngc1851, dec_ngc1851 =  78.528, -40.047
-    get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30, outfile='../data/NGC1851_DES_Y6.fits.gz')
+    # ra_ngc1851, dec_ngc1851 =  78.528, -40.047
+    # get_object_desy6(ra_ngc1851, dec_ngc1851, radius=30, outfile='../data/NGC1851_DES_Y6.fits.gz')
 
+    ra_sgr, dec_sgr =  
+    get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_Dsph_PS1.fits.gz')
