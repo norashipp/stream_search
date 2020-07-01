@@ -99,7 +99,7 @@ def get_stream_desy6(ends, outfile='cutout.fits'):
     length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
 
     filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5) if os.path.exists(filename % i)]
-    columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_R', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
+    columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_G', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
 
     data = load_infiles(filenames, columns=columns, multiproc=32)
 
