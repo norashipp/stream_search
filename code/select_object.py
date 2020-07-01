@@ -134,5 +134,8 @@ if __name__ == '__main__':
     # ra_sgr, dec_sgr = 283.7629167, -30.4783333
     # get_object_ps1(ra_sgr, dec_sgr, radius=10, outfile='../data/Sgr_dsph_PS1.fits.gz')
 
-    ra_leo2, dec_leo2 = 168.3716667, 22.1547222
-    get_object_ps1(ra_leo2, dec_leo2, radius=10, outfile='../data/LeoII_PS1.fits.gz')
+    # ra_leo2, dec_leo2 = 168.3716667, 22.1547222
+    # get_object_ps1(ra_leo2, dec_leo2, radius=10, outfile='../data/LeoII_PS1.fits.gz')
+
+    ends = [[-44.05, -56.54], [-56.98, -50.85]]
+    get_stream_desy6(ends, outfile='y6_rrl_stream.fits.gz')
