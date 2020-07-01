@@ -93,6 +93,31 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     tab.write(outfile)
 
 
+def get_stream_desy6(ends, outfile='cutout.fits'):
+    filename = '/data/des81.b/data/mmcnanna/y6a1/skim_y6_gold_1_1/y6_gold_1_0_%0.5d.fits'
+
+    length = angsep(ends[0][0], ends[0][1], ends[1][0], ends[1][1])
+
+    filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5) if os.path.exists(filename % i)]
+    columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_R', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
+
+    data = load_infiles(filenames, columns=columns, multiproc=32)
+
+    sel = (data['EXT_SOF'] <= 1) & (data['SOF_PSF_MAG_CORRECTED_G'] < 24.5) & (data['SOF_PSF_MAG_CORRECTED_G'] > 16) & (
+        data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] > 0) & (data['SOF_PSF_MAG_CORRECTED_G'] - data['SOF_PSF_MAG_CORRECTED_R'] < 1)
+
+    data = data[sel]
+
+    print('Converting coordinates...')
+    R = streamlib.get_rotmat(ends=ends)
+    phi1, phi2 = phi12_rotmat(data['RA'], data['DEC'], R)
+    sel = (np.abs(phi1) < (length / 2. + 5)) & (np.abs(phi2) < 5)
+
+    tab = table.Table(data[sel])
+    tab.write(outfile)
+
+
+
 if __name__ == '__main__':
     # stream = sys.argv[1]
     # mw_streams = galstreams.MWStreams(verbose=False)
