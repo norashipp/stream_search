@@ -97,7 +97,7 @@ if __name__ == '__main__':
     # moduli = np.arange(15, 20 + dmu, dmu)
     moduli = np.arange(surveys[survey]['moduli'][0], surveys[
                        survey]['moduli'][1] + dmu, dmu)
-    # moduli = [15, 16]
+    
     print('Moduli: ', moduli)
     # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much
     # difference along main sequence
@@ -128,8 +128,12 @@ if __name__ == '__main__':
         ang = hp.pix2ang(32, pix, nest=False, lonlat=True)
         c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
         b = c.galactic.b.deg
-        BMIN = 20
-        idx = np.abs(b) > BMIN
+        
+        # BMIN = 20
+        # idx = np.abs(b) > BMIN
+        BMAX = 20
+        idx = np.abs(b) >= BMAX
+        
         filenames = np.asarray(filenames)[idx]
 
     data = load_infiles(filenames, columns=columns, multiproc=16)
