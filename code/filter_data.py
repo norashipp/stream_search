@@ -59,7 +59,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     else:
         print('Survey error - update isochrones.')
 
-    if survey == 'BASS':
+    if survey in ['BASS', 'BASS_DR9']:
         c = g_bass - r_bass
         m = g_bass
     else:
@@ -122,7 +122,7 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
         c = r_decam - z_decam
         m = g_decam
 
-    elif survey == 'BASS':
+    elif survey in ['BASS', 'BASS_DR9']:
         try:
             print(
                 HOMEDIR + '.ugali/isochrones/ps1/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
@@ -167,7 +167,7 @@ def mkpol_grz(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, su
 
 
 def select_isochrone_grz(mag_g, mag_r, mag_z, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
-    if survey == 'BASS':
+    if survey in ['BASS', 'BASS_DR9']:
         C = [0.1, 0.05]
 
     mu, age, z = iso_params
