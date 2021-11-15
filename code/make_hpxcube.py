@@ -129,11 +129,12 @@ if __name__ == '__main__':
         c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
         b = c.galactic.b.deg
         
-        # BMIN = 20
+        BMIN = 20
+        BMAX = 1000
         # idx = np.abs(b) > BMIN
-        BMAX = 20
-        idx = np.abs(b) >= BMAX
-        
+        # idx = np.abs(b) <= BMAX
+        idx = (np.abs(b) >= BMIN) & (np.abs(b) < BMAX)
+
         filenames = np.asarray(filenames)[idx]
 
     data = load_infiles(filenames, columns=columns, multiproc=16)

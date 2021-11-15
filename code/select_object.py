@@ -7,6 +7,7 @@ from ugali.utils.projector import angsep
 from utils_alex import load_infiles
 
 # import streamlib
+from streamlib_new import get_rotmat
 from rotation_matrix import phi12_rotmat
 
 import galstreams
@@ -83,7 +84,7 @@ def get_stream(ends, survey='DECaLS', outfile='cutout.fits'):
     data = data[sel]
 
     print('Converting coordinates...')
-    R = streamlib.get_rotmat(ends=ends)
+    R = get_rotmat(ends=ends)
     phi1, phi2 = phi12_rotmat(data['RA'], data['DEC'], R)
 
     sel = (np.abs(phi1) < (length / 2. + 5)) & (np.abs(phi2) < 5)
@@ -101,6 +102,7 @@ def get_stream_desy6(ends, outfile='cutout.fits'):
     filenames = [filename % i for i in healpix.ang2disc(32, np.mean([ends[0][0], ends[1][0]]), np.mean([ends[0][1], ends[1][1]]), length * 1.5) if os.path.exists(filename % i)]
     columns = ['RA', 'DEC', 'SOF_PSF_MAG_CORRECTED_G', 'SOF_PSF_MAG_CORRECTED_R', 'EXT_SOF']
 
+    print('Loading data...')
     data = load_infiles(filenames, columns=columns, multiproc=32)
 
     sel = (data['EXT_SOF'] <= 1) & (data['SOF_PSF_MAG_CORRECTED_G'] < 24.5) & (data['SOF_PSF_MAG_CORRECTED_G'] > 16) & (
@@ -109,10 +111,11 @@ def get_stream_desy6(ends, outfile='cutout.fits'):
     data = data[sel]
 
     print('Converting coordinates...')
-    R = streamlib.get_rotmat(ends=ends)
+    R = get_rotmat(ends=ends)
     phi1, phi2 = phi12_rotmat(data['RA'], data['DEC'], R)
     sel = (np.abs(phi1) < (length / 2. + 5)) & (np.abs(phi2) < 5)
 
+    print('Writing file %s...' %outfile)
     tab = table.Table(data[sel])
     tab.write(outfile)
 
