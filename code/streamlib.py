@@ -334,34 +334,35 @@ def mask_center(nside=256, cmax=25):
 
 # lmc=False, milky_way=False, sgr=False, globulars=False, dwarfs=False, galaxies=False, plane=False, bmax=25, center=False, globs_dwarfs=False, acs=False
 
-def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
+def make_mask(nside=256, masking=True, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
-    if lmc:
-        mask |= mask_lmc(nside)
-    if milky_way:
-        mask |= mask_milky_way(nside)
-        mask |= mask_milky_way_north(nside)
-        mask |= mask_milky_way_north_2(nside)
-        mask |= mask_milky_way_north_3(nside)
-    if sgr:
-        mask |= mask_sgr(nside)
-        mask |= mask_sgr_north(nside)
-    if globulars:
-        mask |= mask_globulars(nside)
-    if dwarfs:
-        mask |= mask_dwarfs(nside)
-    if galaxies:
-        mask |= mask_galaxies(nside)
-    if galaxies:
-        mask |= mask_galaxies(nside)
-    if plane:
-        mask |= mask_plane(nside, bmax)
-    if center:
-        mask |= mask_center(nside, cmax)
-    if globs_dwarfs:
-        mask |= mask_more_globs_dwarfs(nside)
-    if acs:
-        mask |= mask_acs(nside)
+    if masking:
+        if lmc:
+            mask |= mask_lmc(nside)
+        if milky_way:
+            mask |= mask_milky_way(nside)
+            mask |= mask_milky_way_north(nside)
+            mask |= mask_milky_way_north_2(nside)
+            mask |= mask_milky_way_north_3(nside)
+        if sgr:
+            mask |= mask_sgr(nside)
+            mask |= mask_sgr_north(nside)
+        if globulars:
+            mask |= mask_globulars(nside)
+        if dwarfs:
+            mask |= mask_dwarfs(nside)
+        if galaxies:
+            mask |= mask_galaxies(nside)
+        if galaxies:
+            mask |= mask_galaxies(nside)
+        if plane:
+            mask |= mask_plane(nside, bmax)
+        if center:
+            mask |= mask_center(nside, cmax)
+        if globs_dwarfs:
+            mask |= mask_more_globs_dwarfs(nside)
+        if acs:
+            mask |= mask_acs(nside)
     return mask
 
 
