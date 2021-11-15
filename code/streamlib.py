@@ -24,12 +24,12 @@ import yaml
 from matplotlib.patches import Ellipse
 
 
-import skymap.survey
+# import skymap.survey
 # from skymap.survey import DESSkymapMcBryde
-from skymap.survey import DESSkymap
-from skymap.utils import gal2cel, cel2gal
-from skymap.utils import setdefaults
-from skymap.healpix import ang2disc
+# from skymap.survey import DESSkymap
+# from skymap.utils import gal2cel, cel2gal
+# from skymap.utils import setdefaults
+# from skymap.healpix import ang2disc
 from ugali.utils.shell import mkdir
 from ugali.utils.projector import mod2dist, angsep, dist2mod
 
@@ -41,20 +41,20 @@ import results
 from streams import GLOBULARS, DWARFS, GALAXIES
 import elysian
 
-import load_stream
+# import load_stream
 
 import galstreams
 import rotation_matrix
 
 # DATADIR = os.path.join(dirname(realpath(__file__)), '../data')
-DATADIR = os.path.join(dirname(realpath(__file__)), '/Users/nora/projects/stream_search/data')
+DATADIR = os.path.join(dirname(realpath(__file__)), '/home/s1/nshipp/projects/stream_search/data')
 STREAMFILE = os.path.join(DATADIR, 'streams_v6.0.yaml')
 
 
 def load_streams(filename=STREAMFILE):
     return yaml.load(open(STREAMFILE, 'r'))
 
-STREAMS = load_streams()
+# STREAMS = load_streams()
 
 FRACMIN = 0.5
 SIGMA = 0.2
