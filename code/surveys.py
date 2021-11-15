@@ -6,7 +6,7 @@ surveys = odict([
      dict(
          mag='MAG_PSF_SFD_%s',
          ext=None,
-         data_dir='/home/s1/pferguso/projects/field_of_streams_v2/skim_cats/lsdr9_south/',
+         data_dir='/home/s1/pferguso/projects/field_of_streams_v2/skim_cats/delve_r2v2/',
          fracdet=None,
          minmag=16.,
          maxmag=24.0,
