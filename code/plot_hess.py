@@ -160,5 +160,5 @@ def plot_hess_grz(stream, data_on, data_off=None, gmax=23.5, gmin=16, grmax=1, g
 
     # colorbar(im1)
 
-    return ax, im1
+    return im1
 
