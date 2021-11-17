@@ -32,7 +32,7 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     if survey in ['PS1']:
         iso = isochrone_factory(
             'Dotter', survey='ps1', age=age, distance_modulus=mu, z=z)
-    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6', 'DES_Y6_GOLD', 'DELVE', 'DECaLS_DR9']:
+    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6', 'DES_Y6_GOLD', 'DELVE', 'DECaLS_DR9', 'DELVE_R1', 'DELVE_R2']:
         iso = isochrone_factory('Dotter', survey='des',
                                 age=age, distance_modulus=mu, z=z)
     elif survey in ['BASS', 'BASS_DR9']:
