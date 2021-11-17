@@ -24,15 +24,10 @@ import yaml
 from matplotlib.patches import Ellipse
 
 
-# import skymap.survey
-# from skymap.survey import DESSkymapMcBryde
-# from skymap.survey import DESSkymap
-# from skymap.utils import gal2cel, cel2gal
-# from skymap.utils import setdefaults
-# from skymap.healpix import ang2disc
 from ugali.utils.shell import mkdir
 from ugali.utils.projector import mod2dist, angsep, dist2mod
 
+# from skymap.healpix import ang2disc
 
 from numpy.polynomial import polynomial
 from polyfit2d import polyfit2d
@@ -41,120 +36,13 @@ import results
 from streams import GLOBULARS, DWARFS, GALAXIES
 import elysian
 
-# import load_stream
-
 import galstreams
 import rotation_matrix
-
-# DATADIR = os.path.join(dirname(realpath(__file__)), '../data')
-DATADIR = os.path.join(dirname(realpath(__file__)), '/home/s1/nshipp/projects/stream_search/data')
-STREAMFILE = os.path.join(DATADIR, 'streams_v6.0.yaml')
-
-
-def load_streams(filename=STREAMFILE):
-    return yaml.load(open(STREAMFILE, 'r'))
-
-# STREAMS = load_streams()
 
 FRACMIN = 0.5
 SIGMA = 0.2
 NSIDE = 256
 
-# try:
-#     POINTINGS = np.genfromtxt('../data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
-#     # POINTINGS = np.genfromtxt('../data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
-# except:
-#     POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/pointings/stream_pointing_maps_v7.csv', dtype=None, delimiter=',')
-#     # POINTINGS = np.genfromtxt('/Users/nora/projects/proper_motions/data/stream_pointing_maps_v2.csv', dtype=None, delimiter=',')
-
-
-class DESSkymapNGC288(DESSkymap):
-    """Class for plotting a zoom on DES. This is relatively inflexible."""
-    # [[RA1,RA2],[DEC1,DEC2]] frame limits
-    FRAME = [[9, 18], [-22, -33]]
-    FIGSIZE = [3.4, 5]
-
-    def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=1, height="3%", width="30%",
-                        bbox_to_anchor=(0, -0.05, 1, 1))
-        setdefaults(kwargs, defaults)
-        super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
-
-    def get_map_range(self, hpxmap, pixel=None, nside=None):
-        """ Calculate the longitude and latitude range for an implicit map. """
-        return FRAME
-
-
-class DESSkymapNGC1261(DESSkymap):
-    """Class for plotting a zoom on DES. This is relatively inflexible."""
-    # RA, DEC frame limits
-    FRAME = [[47, 48], [-60, -50]]
-    FIGSIZE = [3.4, 5]
-
-    def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=3, height="4%", width="20%",
-                        bbox_to_anchor=(0, 0.05, 1, 1))
-        setdefaults(kwargs, defaults)
-        super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
-
-
-class DESSkymapNGC1851(DESSkymap):
-    """Class for plotting a zoom on DES. This is relatively inflexible."""
-    # RA, DEC frame limits
-    #FRAME = [[80,80],[-50,-30]]
-    FRAME = [[80, 80], [-47, -33]]
-    FIGSIZE = [3.4, 5]
-
-    def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=4, height="5%", width="25%",
-                        bbox_to_anchor=(0, 0.05, 1, 1))
-        setdefaults(kwargs, defaults)
-        super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
-
-
-class DESSkymapNGC1904(DESSkymap):
-    """Class for plotting a zoom on DES. This is relatively inflexible."""
-    # RA, DEC frame limits
-    FRAME = [[80.5, 82.5], [-30, -21]]
-    FIGSIZE = [3.4, 5]
-
-    def draw_inset_colorbar(self, *args, **kwargs):
-        defaults = dict(loc=4, height="5%", width="25%",
-                        bbox_to_anchor=(0, 0.05, 1, 1))
-        setdefaults(kwargs, defaults)
-        super(DESSkymap, self).draw_inset_colorbar(*args, **kwargs)
-
-
-def skymap_factory(proj):
-    proj = proj.lower()
-    if proj == 'mbtpq':
-        smap = skymap.survey.DESSkymap
-    elif proj == 'q1':
-        smap = skymap.survey.DESSkymapQ1
-    elif proj == 'q2':
-        smap = skymap.survey.DESSkymapQ2
-    elif proj == 'q3':
-        smap = skymap.survey.DESSkymapQ3
-    elif proj == 'q4':
-        smap = skymap.survey.DESSkymapQ4
-    elif proj == 'ngc288':
-        smap = DESSkymapNGC288
-    elif proj == 'ngc1261':
-        smap = DESSkymapNGC1261
-    elif proj == 'ngc1851':
-        smap = DESSkymapNGC1851
-    elif proj == 'ngc1904':
-        smap = DESSkymapNGC1904
-    elif proj == 'splaea':
-        smap = skymap.survey.DESPolarLambert
-    elif proj == 'laea':
-        smap = skymap.survey.DESLambert
-    elif proj == 'cyl':
-        smap = skymap.survey.DESSkymapCart
-    else:
-        smap = skymap.survey.SurveySkymap
-
-    return smap
 
 DATA = odict([
     ('data', dict()),
@@ -176,9 +64,16 @@ CBAR_KWARGS = odict([
     ('default', dict(label='Counts/healpix')),
 ])
 
+def ang2disc(nside, lon, lat, radius, inclusive=False, fact=4, nest=False):
+    """
+    Wrap `query_disc` to use lon, lat, and radius in degrees.
+    """
+    vec = hp.ang2vec(lon,lat,lonlat=True)
+    return hp.query_disc(nside,vec,np.radians(radius),inclusive,fact,nest)
 
 def mask_lmc(nside=256):
-    from skymap.constants import RA_LMC, DEC_LMC, RADIUS_LMC
+    # from skymap.constants import RA_LMC, DEC_LMC, RADIUS_LMC
+    RA_LMC, DEC_LMC = 80.8937500, -69.7561111
     RADIUS_LMC = 5.7
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
     mask[ang2disc(nside, RA_LMC, DEC_LMC, 3 * RADIUS_LMC)] = True
@@ -334,35 +229,34 @@ def mask_center(nside=256, cmax=25):
 
 # lmc=False, milky_way=False, sgr=False, globulars=False, dwarfs=False, galaxies=False, plane=False, bmax=25, center=False, globs_dwarfs=False, acs=False
 
-def make_mask(nside=256, masking=True, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
+def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
-    if masking:
-        if lmc:
-            mask |= mask_lmc(nside)
-        if milky_way:
-            mask |= mask_milky_way(nside)
-            mask |= mask_milky_way_north(nside)
-            mask |= mask_milky_way_north_2(nside)
-            mask |= mask_milky_way_north_3(nside)
-        if sgr:
-            mask |= mask_sgr(nside)
-            mask |= mask_sgr_north(nside)
-        if globulars:
-            mask |= mask_globulars(nside)
-        if dwarfs:
-            mask |= mask_dwarfs(nside)
-        if galaxies:
-            mask |= mask_galaxies(nside)
-        if galaxies:
-            mask |= mask_galaxies(nside)
-        if plane:
-            mask |= mask_plane(nside, bmax)
-        if center:
-            mask |= mask_center(nside, cmax)
-        if globs_dwarfs:
-            mask |= mask_more_globs_dwarfs(nside)
-        if acs:
-            mask |= mask_acs(nside)
+    if lmc:
+        mask |= mask_lmc(nside)
+    if milky_way:
+        mask |= mask_milky_way(nside)
+        mask |= mask_milky_way_north(nside)
+        mask |= mask_milky_way_north_2(nside)
+        mask |= mask_milky_way_north_3(nside)
+    if sgr:
+        mask |= mask_sgr(nside)
+        mask |= mask_sgr_north(nside)
+    if globulars:
+        mask |= mask_globulars(nside)
+    if dwarfs:
+        mask |= mask_dwarfs(nside)
+    if galaxies:
+        mask |= mask_galaxies(nside)
+    if galaxies:
+        mask |= mask_galaxies(nside)
+    if plane:
+        mask |= mask_plane(nside, bmax)
+    if center:
+        mask |= mask_center(nside, cmax)
+    if globs_dwarfs:
+        mask |= mask_more_globs_dwarfs(nside)
+    if acs:
+        mask |= mask_acs(nside)
     return mask
 
 

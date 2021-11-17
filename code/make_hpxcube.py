@@ -29,11 +29,12 @@ import filter_data
 
 GRZ = False
 
+
 def run(arguments):
     mod = arguments
     print("m-M = %.1f..." % (mod))
 
-    gmin = 3.4 + mod # abs mag cutoff
+    gmin = 3.4 + mod  # abs mag cutoff
 
     sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
@@ -59,6 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('-mp', '--multiproc', default=0)
     parser.add_argument('-a', '--age', default=12.)
     parser.add_argument('-z', '--metallicity', default=0.0004)
+    parser.add_argument('-mm', '--maxmag', default=None)
     args = parser.parse_args()
 
     level = logging.DEBUG if args.verbose else logging.INFO
@@ -81,8 +83,6 @@ if __name__ == '__main__':
     #     ext_g = ext % 'G'
     #     ext_r = ext % 'R'
     #     ext_i = ext % 'I'
-    minmag = surveys[survey]['minmag']
-    maxmag = surveys[survey]['maxmag']
     # columns = ['RA', 'DEC', mag_g, mag_r, mag_i] # include i eventually, try
     # mp search
     if GRZ:
@@ -97,12 +97,16 @@ if __name__ == '__main__':
     # moduli = np.arange(15, 20 + dmu, dmu)
     moduli = np.arange(surveys[survey]['moduli'][0], surveys[
                        survey]['moduli'][1] + dmu, dmu)
-    
+
     print('Moduli: ', moduli)
     # 12.0  # from DES search, compared to 12.5, 0.0001, doesn't make much
     # difference along main sequence
     age = float(args.age)
     z = float(args.metallicity)  # 0.0002
+    maxmag = float(args.maxmag)
+    minmag = surveys[survey]['minmag']
+    if maxmag is None:
+        maxmag = surveys[survey]['maxmag']
 
     metal_poor = False
     ###################
@@ -128,8 +132,8 @@ if __name__ == '__main__':
         ang = hp.pix2ang(32, pix, nest=False, lonlat=True)
         c = SkyCoord(ang[0], ang[1], frame='icrs', unit='deg')
         b = c.galactic.b.deg
-        
-        BMIN = 20
+
+        BMIN = 0
         BMAX = 1000
         # idx = np.abs(b) > BMIN
         # idx = np.abs(b) <= BMAX

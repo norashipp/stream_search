@@ -29,8 +29,9 @@ from ugali.utils.projector import angsep
 
 import galstreams
 
+from importlib import reload
 import streamlib
-# reload(streamlib)
+reload(streamlib)
 import rotation_matrix
 import surveys
 # reload(surveys)
@@ -59,23 +60,23 @@ def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8), tex=True):
     mpl.rcParams.update({'figure.autolayout': True})
 
 
-# def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
-#     print("Reading %s..." % filename)
-#     f = fitsio.FITS(filename)
-#     hpxcube = f['HPXCUBE'].read()
-#     try:
-#         fracdet = f['FRACDET'].read()
-#         print('fracdet test', np.sum(fracdet > 0.5))
-#     except:
-#         print('Skipping fracdet...')
-#         fracdet = np.zeros_like(hpxcube[:, 0])
-#         fracdet[np.where(hpxcube[:, 0] > 0)] = 1
-#     try:
-#         modulus = f['MODULUS'].read()
-#     except:
-#         print('Error reading modulus...')
-#         modulus = np.array([16.])
-#     return hpxcube, fracdet, modulus
+def load_hpxcube(filename='../data/iso_hpxcube.fits.gz'):
+    print("Reading %s..." % filename)
+    f = fitsio.FITS(filename)
+    hpxcube = f['HPXCUBE'].read()
+    try:
+        fracdet = f['FRACDET'].read()
+        print('fracdet test', np.sum(fracdet > 0.5))
+    except:
+        print('Skipping fracdet...')
+        fracdet = np.zeros_like(hpxcube[:, 0])
+        fracdet[np.where(hpxcube[:, 0] > 0)] = 1
+    try:
+        modulus = f['MODULUS'].read()
+    except:
+        print('Error reading modulus...')
+        modulus = np.array([16.])
+    return hpxcube, fracdet, modulus
 
 
 def prepare_hpxmap(mu, hpxcube, fracdet, modulus, fracmin=0.5, clip=100, sigma=0.2, **mask_kw):
@@ -197,8 +198,7 @@ def plot_density(data, bkg, coords='cel', coord_stream=None, center=(0, 0), proj
 
     if smap is None:
         plt.figure()
-        smap = skymap.Skymap(projection=proj, lon_0=center[
-                             0], lat_0=center[1], celestial=False)
+        smap = skymap.Skymap(projection=proj, lon_0=center[0], lat_0=center[1], celestial=False)
 
     if coords == 'gal':
         lon, lat = hp.pix2ang(nside, np.arange(len(data)), lonlat=True)

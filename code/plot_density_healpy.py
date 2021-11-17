@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import healpy as hp
 import os
 import sys
@@ -21,6 +22,21 @@ from polyfit2d import polyfit2d
 from stream_helpers import get_rot
 import streamlib
 
+def plot_pretty(dpi=175, fontsize=15, labelsize=15, figsize=(10, 8), tex=True):
+    # import pyplot and set some parameters to make plots prettier
+
+    plt.rc('savefig', dpi=dpi)
+    plt.rc('text', usetex=tex)
+    plt.rc('font', size=fontsize)
+    plt.rc('xtick.major', pad=5)
+    plt.rc('xtick.minor', pad=5)
+    plt.rc('ytick.major', pad=5)
+    plt.rc('ytick.minor', pad=5)
+    plt.rc('figure', figsize=figsize)
+
+    mpl.rcParams['xtick.labelsize'] = labelsize
+    mpl.rcParams['ytick.labelsize'] = labelsize
+    mpl.rcParams.update({'figure.autolayout': True})
 
 def mod2dist(distance_modulus):
     return 10**(distance_modulus / 5. + 1.) / 1e3
@@ -93,6 +109,7 @@ def plot_stream(hpxcube, modulus, stream=None, ends=None, mu_min=14.0, mu_max=20
         img = proj.projmap(hpxmap_smooth, func)
 
         vmin, vmax = get_vscale(img, q=[1, 90])
+        print('vmin, vmax = ', vmin, vmax)
 
         fig, ax = plt.subplots(1, 1, figsize=(12, 6))
         ax.imshow(img, origin='bottom', vmin=vmin, vmax=vmax, cmap='Greys', extent=proj.get_extent())
@@ -151,7 +168,8 @@ def plot_stream_footprints(ax, proj, mu, dmu=0.5):
     ylim = ax.set_ylim()
 
     mw_streams = galstreams.MWStreams(verbose=False)
-    for stream_name in mw_streams.keys():
+    # for stream_name in mw_streams.keys():
+    for stream_name in ['ATLAS', 'Aliqa_Uma', 'Elqui', 'Chenab', 'Indus', 'Jhelum', 'Phoenix', 'Ravi', 'Turbio', 'Turranburra', 'Wambelong', 'TucanaIII', 'Willka_Yaku']:
         if stream_name in ['Her-Aq', 'EriPhe', 'Sgr-L10']:
             continue
         mu_stream = dist2mod(mw_streams[stream_name].Rhel[0])
@@ -207,8 +225,11 @@ def prepare_data(mu, hpxcube, modulus, fracdet, fracmin=0.5, clip=100, sigma=0.1
     i = np.argmin(np.abs(mu - modulus))
     hpxmap = np.copy(hpxcube[:, i])
 
-    # fracdet = np.ones(hpxmap.size)
-    # fracdet[hpxmap == hp.UNSEEN] = 0
+    if fracdet is None:
+        # fracdet = np.ones(hpxmap.size)
+        # fracdet[hpxmap == hp.UNSEEN] = 0
+        fracdet = np.zeros_like(hpxcube[:, 0])
+        fracdet[np.where(hpxcube[:, 0] > 0)] = 1
 
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # data = np.ma.array(hpxmap, mask=fracdet < 0.5)
@@ -300,6 +321,6 @@ def plot_proj(proj, data, ax=None, q=[5, 90], vmin=None, vmax=None):
     if ax is None:
         fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 
-    im = ax.imshow(img, origin='bottom', vmin=vmin, vmax=vmax, cmap='Greys', extent=proj.get_extent())
+    im = ax.imshow(img, origin='lower', vmin=vmin, vmax=vmax, cmap='Greys', extent=proj.get_extent())
 
     return ax, im
