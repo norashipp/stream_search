@@ -64,12 +64,14 @@ CBAR_KWARGS = odict([
     ('default', dict(label='Counts/healpix')),
 ])
 
+
 def ang2disc(nside, lon, lat, radius, inclusive=False, fact=4, nest=False):
     """
     Wrap `query_disc` to use lon, lat, and radius in degrees.
     """
-    vec = hp.ang2vec(lon,lat,lonlat=True)
-    return hp.query_disc(nside,vec,np.radians(radius),inclusive,fact,nest)
+    vec = hp.ang2vec(lon, lat, lonlat=True)
+    return hp.query_disc(nside, vec, np.radians(radius), inclusive, fact, nest)
+
 
 def mask_lmc(nside=256):
     # from skymap.constants import RA_LMC, DEC_LMC, RADIUS_LMC
@@ -229,8 +231,10 @@ def mask_center(nside=256, cmax=25):
 
 # lmc=False, milky_way=False, sgr=False, globulars=False, dwarfs=False, galaxies=False, plane=False, bmax=25, center=False, globs_dwarfs=False, acs=False
 
-def make_mask(nside=256, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
+def make_mask(nside=256, all_off=True, lmc=True, milky_way=True, sgr=False, globulars=True, dwarfs=True, galaxies=True, plane=True, bmax=25, center=True, globs_dwarfs=True, acs=False, cmax=25):
     mask = np.zeros(hp.nside2npix(nside), dtype=bool)
+    if all_off:
+        return mask
     if lmc:
         mask |= mask_lmc(nside)
     if milky_way:
