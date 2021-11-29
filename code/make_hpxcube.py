@@ -28,6 +28,7 @@ import filter_data
 
 
 GRZ = False
+GI = False
 
 
 def run(arguments):
@@ -36,7 +37,10 @@ def run(arguments):
 
     gmin = 3.4 + mod  # abs mag cutoff
 
-    sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
+    if GI:
+        sel1 = filter_data.select_isochrone(data[mag_g], data[mag_i], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey, gi_sel=True)
+    else:
+        sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
     if GRZ:
         sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
@@ -87,6 +91,8 @@ if __name__ == '__main__':
     # mp search
     if GRZ:
         columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
+    elif GI:
+        columns = ['RA', 'DEC', mag_g, mag_i]
     else:
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:

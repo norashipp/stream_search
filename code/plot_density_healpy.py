@@ -229,7 +229,7 @@ def prepare_data(mu, hpxcube, modulus, fracdet, fracmin=0.5, clip=100, sigma=0.1
         # fracdet = np.ones(hpxmap.size)
         # fracdet[hpxmap == hp.UNSEEN] = 0
         fracdet = np.zeros_like(hpxcube[:, 0])
-        fracdet[np.where(hpxcube[:, 0] > 0)] = 1
+        fracdet[np.where(np.sum(hpxcube, axis=1) > 0)] = 1
 
     data = streamlib.prepare_data(hpxmap, fracdet, fracmin=fracmin, clip=clip, mask_kw=mask_kw)
     # data = np.ma.array(hpxmap, mask=fracdet < 0.5)
