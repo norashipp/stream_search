@@ -10,8 +10,8 @@ surveys = odict([
          fracdet=None,
          minmag=16.,
          maxmag=24.0,
-         stargal=None,
-         stargal_cut=None,
+         stargal='EXTENDED_CLASS',
+         stargal_cut=0,
          err=lambda x: 0.0010908679647672335 +
              np.exp((x - 27.091072029215375) / 1.0904624484538419),
          C=[0.05, 0.1],  # [-0.04, 0.1],
@@ -25,8 +25,8 @@ surveys = odict([
          fracdet=None,
          minmag=16.,
          maxmag=24.0,
-         stargal=None,
-         stargal_cut=None,
+         stargal='EXTENDED_CLASS',
+         stargal_cut=0,
          err=lambda x: 0.0010908679647672335 +
              np.exp((x - 27.091072029215375) / 1.0904624484538419),
          C=[0.05, 0.1],  # [-0.04, 0.1],

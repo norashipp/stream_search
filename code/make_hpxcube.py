@@ -91,6 +91,10 @@ if __name__ == '__main__':
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
         columns.append(stargal)
+    if True:
+        # FOR DELVE
+        print('DELVE stargal')
+        columns.append('WAVG_SPREAD_MODEL_G')
 
     ###################
     dmu = 0.1
@@ -169,7 +173,13 @@ if __name__ == '__main__':
         data[mag_r] -= ext_r
         data[mag_i] -= ext_i
 
-    if stargal is not None:
+    if True:
+        # FOR DELVE
+        print('Using DELVE stargal: abs(wavg_spread_model_g) < 0.003')
+        a1 = np.abs(data['WAVG_SPREAD_MODEL_G']) < 0.003
+        data = data[a1]
+        gc.collect()
+    elif stargal is not None:
         print('Selecting: %s <= %i' % (stargal, stargal_cut))
         a1 = data[stargal] <= stargal_cut
         data = data[a1]
