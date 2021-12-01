@@ -92,7 +92,7 @@ if __name__ == '__main__':
     if GRZ:
         columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
     elif GI:
-        columns = ['RA', 'DEC', mag_g, mag_i]
+        columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
     else:
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
