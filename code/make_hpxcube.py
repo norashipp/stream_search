@@ -38,12 +38,8 @@ def run(arguments):
     gmin = 3.4 + mod  # abs mag cutoff
 
     if GI:
-<<<<<<< HEAD
         print('Using g-i sel')
-        sel1 = filter_data.select_isochrone(data[mag_g], data[mag_i], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey, gi_sel=True)
-=======
         sel1 = filter_data.select_isochrone_gi(data[mag_g], data[mag_i], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
->>>>>>> 1e0c10c53456be06d911c6aca1e4cdf18c1dccd0
     else:
         print('Using g-r sel')
         sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
