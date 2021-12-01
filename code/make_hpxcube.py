@@ -28,7 +28,7 @@ import filter_data
 
 
 GRZ = False
-GI = False
+GI = True
 
 
 def run(arguments):
@@ -38,11 +38,14 @@ def run(arguments):
     gmin = 3.4 + mod  # abs mag cutoff
 
     if GI:
+        print('Using g-i sel')
         sel1 = filter_data.select_isochrone(data[mag_g], data[mag_i], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey, gi_sel=True)
     else:
+        print('Using g-r sel')
         sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
     if GRZ:
+        print('Using g-r-z sel')
         sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
         sel = sel1 & sel2
     else:
