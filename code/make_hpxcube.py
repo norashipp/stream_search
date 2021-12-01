@@ -92,7 +92,7 @@ if __name__ == '__main__':
     if GRZ:
         columns = ['RA', 'DEC', mag_g, mag_r, mag_z]
     elif GI:
-        columns = ['RA', 'DEC', mag_g, mag_r, mag_i]
+        columns = ['RA', 'DEC', mag_g, mag_i]
     else:
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
@@ -161,11 +161,18 @@ if __name__ == '__main__':
     data = data[a1]
     gc.collect()
 
-    mincolor = 0.
-    maxcolor = 1.
-    print("Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor))
-    a1 = data[mag_g] - data[mag_r] < maxcolor
-    a2 = data[mag_g] - data[mag_r] > mincolor
+    if GI:
+        mincolor = -1
+        maxcolor = 2
+        print("Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor))
+        a1 = data[mag_g] - data[mag_i] < maxcolor
+        a2 = data[mag_g] - data[mag_i] > mincolor
+    else:
+        mincolor = 0.
+        maxcolor = 1.
+        print("Selecting: %.1f < %s < %.1f" % (mincolor, 'g - r', maxcolor))
+        a1 = data[mag_g] - data[mag_r] < maxcolor
+        a2 = data[mag_g] - data[mag_r] > mincolor
     a1 &= a2
     data = data[a1]
     gc.collect()
