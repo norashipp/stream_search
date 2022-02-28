@@ -41,6 +41,8 @@ def load_data(nfiles=1, saving=False, loading=False):
     for f in fnames:
         dat = fitsio.open(f)[1].data
         idx = (dat[MAG%'G'] > 16) & (dat[MAG%'G'] < 25) 
+        idx &= (dat[MAG%'R'] > 16) & (dat[MAG%'R'] < 25) 
+        idx &= (dat[MAG%'I'] > 16) & (dat[MAG%'I'] < 25) 
         dat = dat[idx]
 
         g_mag.append(dat[MAG % 'G'])
