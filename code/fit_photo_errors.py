@@ -17,7 +17,7 @@ def load_data(nfiles=1):
     fnames = glob.glob(DATA_DIR + '*.fits')
     fnames.sort()
     idx = np.random.choice(np.arange(len(fnames)), size=nfiles, replace=False)
-    fnames = fnames[idx]
+    fnames = [fnames[i] for i in idx]
 
     g_mag = []
     g_mag_err = []
