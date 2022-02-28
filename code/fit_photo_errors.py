@@ -1,6 +1,8 @@
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
+from astopy.io import fits as fitsio
 
 from scipy.stats import binned_statistic
 from scipy.optimize import curve_fit
