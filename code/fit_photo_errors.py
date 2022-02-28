@@ -40,6 +40,8 @@ def load_data(nfiles=1, saving=False, loading=False):
 
     for f in fnames:
         dat = fitsio.open(f)[1].data
+        idx = (dat[MAG%'G'] > 16) & (dat[MAG%'G'] < 25) 
+        dat = dat[idx]
 
         g_mag.append(dat[MAG % 'G'])
         g_mag_err.append(dat[MAG_ERR % 'G'])
@@ -68,7 +70,6 @@ def fit_error(nfiles, mags=None, plotting=True):
     except:
         g_mag, r_mag, i_mag = load_data(nfiles=nfiles)
 
-
     bins = np.linspace(16, 25, 50)
     bin_mids = (bins[1:] + bins[:-1])/2.
     func = lambda x, a, b, c: a + np.exp((x - b)/c) 
@@ -86,7 +87,7 @@ def fit_error(nfiles, mags=None, plotting=True):
     # I-BAND
     i_meds, _, _ = binned_statistic(i_mag[0], i_mag[1], statistic='median', bins=bins)
     (ai, bi, ci), _ = curve_fit(func, bin_mids, i_meds, (0.001, 27.09, 1.09))
-    i_func = lambda g: func(i, ai, bi, ci)
+    i_func = lambda i: func(i, ai, bi, ci)
 
     # Z-BAND
     # z_meds, _, _ = binned_statistic(z_mag[0], z_mag[1], statistic='median', bins=bins)
@@ -96,6 +97,9 @@ def fit_error(nfiles, mags=None, plotting=True):
     if plotting:
         plot_fit(bin_mids, [g_meds, r_meds, i_meds], [g_mag, r_mag, i_mag], [g_func, r_func, i_func])
 
+    # temp
+    # ret1 = [bin_mids, [g_meds, r_meds, i_meds], [g_mag, r_mag, i_mag], [g_func, r_func, i_func]]
+    # return ret1
     return (ag, bg, cg), (ar, br, cr), (ai, bi, ci)
 
 
@@ -104,7 +108,7 @@ def plot_fit(bins, meds, mags, funcs):
     for i in range(len(funcs)):
         plt.figure()
         plt.scatter(mags[i][0], mags[i][1], s=1, alpha=0.2)
-        plt.plot(bins, meds, 'k--', lw=2)
+        plt.plot(bins, meds[i], 'k--', lw=2)
         plt.plot(bins, funcs[i](bins), 'b-', lw=3)
 
 
