@@ -28,7 +28,7 @@ import filter_data
 
 
 GRZ = False
-GI = False
+GI = True
 
 
 def run(arguments):
@@ -38,11 +38,14 @@ def run(arguments):
     gmin = 3.4 + mod  # abs mag cutoff
 
     if GI:
+        print('Using g-i sel')
         sel1 = filter_data.select_isochrone_gi(data[mag_g], data[mag_i], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
     else:
+        print('Using g-r sel')
         sel1 = filter_data.select_isochrone(data[mag_g], data[mag_r], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
 
     if GRZ:
+        print('Using g-r-z sel')
         sel2 = filter_data.select_isochrone_grz(data[mag_g], data[mag_r], data[mag_z], err=err, iso_params=[mod, age, z], C=C, E=E, gmin=gmin, survey=survey)
         sel = sel1 & sel2
     else:
@@ -97,6 +100,10 @@ if __name__ == '__main__':
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
         columns.append(stargal)
+    if True:
+        # FOR DELVE
+        print('DELVE stargal')
+        columns.append('WAVG_SPREAD_MODEL_G')
 
     ###################
     dmu = 0.1
@@ -182,7 +189,13 @@ if __name__ == '__main__':
         data[mag_r] -= ext_r
         data[mag_i] -= ext_i
 
-    if stargal is not None:
+    if True:
+        # FOR DELVE
+        print('Using DELVE stargal: abs(wavg_spread_model_g) < 0.003')
+        a1 = np.abs(data['WAVG_SPREAD_MODEL_G']) < 0.003
+        data = data[a1]
+        gc.collect()
+    elif stargal is not None:
         print('Selecting: %s <= %i' % (stargal, stargal_cut))
         a1 = data[stargal] <= stargal_cut
         data = data[a1]
