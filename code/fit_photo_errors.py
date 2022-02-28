@@ -13,7 +13,16 @@ MAG = 'SOF_PSF_MAG_CORRECTED_%s'
 MAG_ERR = 'SOF_PSF_MAG_ERR_%s'
 
 
-def load_data(nfiles=1):
+def load_data(nfiles=1, saving=False, loading=False):
+    if loading:
+        g_mag = np.load('g_mag.npy', g_mag)
+        g_mag_err = np.load('g_mag_err.npy', g_mag_err)
+        r_mag = np.load('r_mag.npy', r_mag)
+        r_mag_err = np.load('r_mag_err.npy', r_mag_err)
+        i_mag = np.load('i_mag.npy', i_mag)
+        i_mag_err = np.load('i_mag_err.npy', i_mag_err)
+        return (g_mag, g_mag_err), (r_mag, r_mag_err), (i_mag, i_mag_err)
+
     fnames = glob.glob(DATA_DIR + '*.fits')
     fnames.sort()
     idx = np.random.choice(np.arange(len(fnames)), size=nfiles, replace=False)
@@ -39,6 +48,14 @@ def load_data(nfiles=1):
         i_mag_err.append(dat[MAG % 'I'])
         # z_mag.append(dat[MAG % 'Z'])
         # z_mag_err.append(dat[MAG % 'Z'])
+
+    if saving:
+        np.save('g_mag.npy', g_mag)
+        np.save('g_mag_err.npy', g_mag_err)
+        np.save('r_mag.npy', r_mag)
+        np.save('r_mag_err.npy', r_mag_err)
+        np.save('i_mag.npy', i_mag)
+        np.save('i_mag_err.npy', i_mag_err)
 
 
     return (np.hstack(g_mag), np.hstack(g_mag_err)), (np.hstack(r_mag), np.hstack(r_mag_err)), (np.hstack(i_mag), np.hstack(i_mag_err)) # , (np.hstack(z_mag), np.hstack(z_mag_err))
@@ -94,9 +111,9 @@ def plot_fit(bins, meds, mags, funcs):
 if __name__ == '__main__':
     nfiles = 1
     print('Loading data')
-    g_mag, r_mag, i_mag = load_data(nfiles)
+    g_mag, r_mag, i_mag = load_data(nfiles, saveing=True)
     print('Fitting data')
-    out = fit_error(nfiles, mags, plotting=True)
+    out = fit_error(nfiles, [g_mag, r_mag, i_mag], plotting=True)
 
 
 
