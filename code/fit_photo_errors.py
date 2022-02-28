@@ -42,8 +42,12 @@ def load_data(nfiles=1):
     return (np.hstack(g_mag), np.hstack(g_mag_err)), (np.hstack(r_mag), np.hstack(r_mag_err)), (np.hstack(i_mag), np.hstack(i_mag_err)) # , (np.hstack(z_mag), np.hstack(z_mag_err))
 
 
-def fit_error(nfiles):
-    g_mag, r_mag, i_mag = load_data(nfiles=nfiles)
+def fit_error(nfiles, mags=None, plotting=True):
+    try:
+        g_mag, r_mag, i_mag = mags
+    except:
+        g_mag, r_mag, i_mag = load_data(nfiles=nfiles)
+
 
     bins = np.linspace(16, 25, 50)
     bin_mids = (bins[1:] + bins[:-1])/2.
@@ -69,12 +73,14 @@ def fit_error(nfiles):
     # (a0, b0, c0), _ = curve_fit(func, bin_mids, z_meds, (0.001, 27.09, 1.09))
     # z_func = lambda g: func(z, az, bz, cz)
 
-    plot_fit(bin_mids, [g_meds, r_meds, i_meds], [g_mag, r_mag, i_mag], [g_func, r_func, i_func])
+    if plotting:
+        plot_fit(bin_mids, [g_meds, r_meds, i_meds], [g_mag, r_mag, i_mag], [g_func, r_func, i_func])
 
     return (ag, bg, cg), (ar, br, cr), (ai, bi, ci)
 
 
 def plot_fit(bins, meds, mags, funcs):
+    print('Plotting')
     for i in range(len(funcs)):
         plt.figure()
         plt.scatter(mags[i][0], mags[i][1], s=1, alpha=0.2)
@@ -83,8 +89,12 @@ def plot_fit(bins, meds, mags, funcs):
 
 
 
-
-
+if __name__ == '__main__':
+    nfiles = 1
+    print('Loading data')
+    g_mag, r_mag, i_mag = load_data(nfiles)
+    print('Fitting data')
+    out = fit_error(nfiles, mags, plotting=True)
 
 
 
