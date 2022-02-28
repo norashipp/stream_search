@@ -168,8 +168,8 @@ def plot_stream_footprints(ax, proj, mu, dmu=0.5):
     ylim = ax.set_ylim()
 
     mw_streams = galstreams.MWStreams(verbose=False)
-    # for stream_name in mw_streams.keys():
-    for stream_name in ['ATLAS', 'Aliqa_Uma', 'Elqui', 'Chenab', 'Indus', 'Jhelum', 'Phoenix', 'Ravi', 'Turbio', 'Turranburra', 'Wambelong', 'TucanaIII', 'Willka_Yaku']:
+    for stream_name in mw_streams.keys():
+    # for stream_name in ['ATLAS', 'Aliqa_Uma', 'Elqui', 'Chenab', 'Indus', 'Jhelum', 'Phoenix', 'Ravi', 'Turbio', 'Turranburra', 'Wambelong', 'TucanaIII', 'Willka_Yaku']:
         if stream_name in ['Her-Aq', 'EriPhe', 'Sgr-L10']:
             continue
         mu_stream = dist2mod(mw_streams[stream_name].Rhel[0])
