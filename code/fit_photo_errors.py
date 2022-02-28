@@ -42,11 +42,11 @@ def load_data(nfiles=1, saving=False, loading=False):
         dat = fitsio.open(f)[1].data
 
         g_mag.append(dat[MAG % 'G'])
-        g_mag_err.append(dat[MAG % 'G'])
+        g_mag_err.append(dat[MAG_ERR % 'G'])
         r_mag.append(dat[MAG % 'R'])
-        r_mag_err.append(dat[MAG % 'R'])
+        r_mag_err.append(dat[MAG_ERR % 'R'])
         i_mag.append(dat[MAG % 'I'])
-        i_mag_err.append(dat[MAG % 'I'])
+        i_mag_err.append(dat[MAG_ERR % 'I'])
         # z_mag.append(dat[MAG % 'Z'])
         # z_mag_err.append(dat[MAG % 'Z'])
 
