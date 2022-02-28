@@ -8,6 +8,7 @@ from scipy.stats import binned_statistic
 from scipy.optimize import curve_fit
 
 DATA_DIR = '/data/des81.b/data/tavangar/skim_y6_gold_1_1/'
+LOAD_DIR = '../data/mags/'
 
 MAG = 'SOF_PSF_MAG_CORRECTED_%s'
 MAG_ERR = 'SOF_PSF_MAG_ERR_%s'
@@ -15,12 +16,12 @@ MAG_ERR = 'SOF_PSF_MAG_ERR_%s'
 
 def load_data(nfiles=1, saving=False, loading=False):
     if loading:
-        g_mag = np.load('g_mag.npy', g_mag)
-        g_mag_err = np.load('g_mag_err.npy', g_mag_err)
-        r_mag = np.load('r_mag.npy', r_mag)
-        r_mag_err = np.load('r_mag_err.npy', r_mag_err)
-        i_mag = np.load('i_mag.npy', i_mag)
-        i_mag_err = np.load('i_mag_err.npy', i_mag_err)
+        g_mag = np.load(LOAD_DIR + 'g_mag.npy')
+        g_mag_err = np.load(LOAD_DIR + 'g_mag_err.npy')
+        r_mag = np.load(LOAD_DIR + 'r_mag.npy')
+        r_mag_err = np.load(LOAD_DIR + 'r_mag_err.npy')
+        i_mag = np.load(LOAD_DIR + 'i_mag.npy')
+        i_mag_err = np.load(LOAD_DIR + 'i_mag_err.npy')
         return (g_mag, g_mag_err), (r_mag, r_mag_err), (i_mag, i_mag_err)
 
     fnames = glob.glob(DATA_DIR + '*.fits')
@@ -50,12 +51,12 @@ def load_data(nfiles=1, saving=False, loading=False):
         # z_mag_err.append(dat[MAG % 'Z'])
 
     if saving:
-        np.save('g_mag.npy', g_mag)
-        np.save('g_mag_err.npy', g_mag_err)
-        np.save('r_mag.npy', r_mag)
-        np.save('r_mag_err.npy', r_mag_err)
-        np.save('i_mag.npy', i_mag)
-        np.save('i_mag_err.npy', i_mag_err)
+        np.save('g_mag.npy', np.hstack(g_mag))
+        np.save('g_mag_err.npy', np.hstack(g_mag_err))
+        np.save('r_mag.npy', np.hstack(r_mag))
+        np.save('r_mag_err.npy', np.hstack(r_mag_err))
+        np.save('i_mag.npy', np.hstack(i_mag))
+        np.save('i_mag_err.npy', np.hstack(i_mag_err))
 
 
     return (np.hstack(g_mag), np.hstack(g_mag_err)), (np.hstack(r_mag), np.hstack(r_mag_err)), (np.hstack(i_mag), np.hstack(i_mag_err)) # , (np.hstack(z_mag), np.hstack(z_mag_err))
@@ -111,7 +112,7 @@ def plot_fit(bins, meds, mags, funcs):
 if __name__ == '__main__':
     nfiles = 1
     print('Loading data')
-    g_mag, r_mag, i_mag = load_data(nfiles, saveing=True)
+    g_mag, r_mag, i_mag = load_data(nfiles, saving=True)
     print('Fitting data')
     out = fit_error(nfiles, [g_mag, r_mag, i_mag], plotting=True)
 
