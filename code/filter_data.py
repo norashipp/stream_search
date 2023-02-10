@@ -18,8 +18,11 @@ HOMEDIR = '/home/s1/nshipp/'
 
 def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS', clip=None):
     if err == None:
-        print('Using DES err!')
-        err = surveys.surveys['DES_DR1']['err']
+        try:
+            err = surveys.surveys[survey]['err']
+        except:
+            print('Using DES err!')
+            err = surveys.surveys['DES_DR1']['err']
     """ Builds ordered polygon for masking """
 
     # if survey == 'DES':
@@ -29,10 +32,11 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     # err changes between surveys!
 
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
+    
     if survey in ['PS1']:
         iso = isochrone_factory(
             'Dotter', survey='ps1', age=age, distance_modulus=mu, z=z)
-    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6', 'DES_Y6_GOLD', 'DELVE', 'DECaLS_DR9', 'DELVE_R1', 'DELVE_R2']:
+    elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6', 'DES_Y6_GOLD', 'DELVE', 'DECaLS_DR9', 'DECaLS_DR10', 'DELVE_R1', 'DELVE_R2']:
         iso = isochrone_factory('Dotter', survey='des',
                                 age=age, distance_modulus=mu, z=z)
     elif survey in ['BASS', 'BASS_DR9']:
