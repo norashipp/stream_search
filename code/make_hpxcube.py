@@ -28,7 +28,7 @@ import filter_data
 
 
 GRZ = False
-GI = True
+GI = False
 
 
 def run(arguments):
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         columns = ['RA', 'DEC', mag_g, mag_r]
     if stargal is not None:
         columns.append(stargal)
-    if True:
+    if survey == 'DELVE':
         # FOR DELVE
         print('DELVE stargal')
         columns.append('WAVG_SPREAD_MODEL_G')
@@ -189,7 +189,7 @@ if __name__ == '__main__':
         data[mag_r] -= ext_r
         data[mag_i] -= ext_i
 
-    if True:
+    if survey == 'DELVE':
         # FOR DELVE
         print('Using DELVE stargal: abs(wavg_spread_model_g) < 0.003')
         a1 = np.abs(data['WAVG_SPREAD_MODEL_G']) < 0.003
