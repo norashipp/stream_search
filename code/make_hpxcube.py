@@ -14,7 +14,7 @@ from matplotlib.path import Path
 from multiprocessing import Pool
 from multiprocessing import Process, Value, Array
 from multiprocessing import sharedctypes
-import cPickle as pickle
+# import cPickle as pickle
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
