@@ -267,10 +267,12 @@ if __name__ == '__main__':
     header = healpix.header_odict(nside, coord='C', partial=False).values()
     f = fitsio.FITS(args.filename, 'rw', clobber=True)
     print("  Writing hpxcube...")
-    f.write(hpxcube, header=header, extname='hpxcube')
+    # f.write(hpxcube, header=header, extname='hpxcube')
+    f.write(hpxcube, extname='hpxcube') # header not working
     if surveys[survey]['fracdet'] is not None:
         print("  Writing fracdet...")
-        f.write(fracdet, extname='fracdet', header=header)
+        # f.write(fracdet, extname='fracdet', header=header)
+        f.write(fracdet, extname='fracdet')
     print("  Writing bins...")
     f.write(moduli, extname='modulus', header={'dmu': dmu})
     f.close()
