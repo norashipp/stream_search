@@ -43,7 +43,7 @@ def select_stream_cutout(data, stream, extent):
     new_data['PHI2'] = phi2
 
     data = new_data
-    data = data[(data['PHI1'] > extent[0]) & (data['PHI1'] < extent[1]) & (data['PHI2'] > extent[2]) & (data['PHI2'] < extent[3])]ß
+    data = data[(data['PHI1'] > extent[0]) & (data['PHI1'] < extent[1]) & (data['PHI2'] > extent[2]) & (data['PHI2'] < extent[3])]
     return data
 
 
