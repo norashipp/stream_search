@@ -17,8 +17,9 @@ def load_data(survey='DECaLS_DR9', ra_range=None):
     columns = ['RA', 'DEC', mag % 'G', mag % 'R']
     filenames = glob.glob(data_dir + '/*.fits')
     if ra_range is not None:
-        filenames = [f for f in filenames if (f[75:78] < ra_range[1]) and (f[83:86] > ra_range[0])]
-    filenames = filenames[:5]
+        filenames = [f for f in filenames if (int(f[75:78]) < ra_range[1]) and (int(f[83:86]) > ra_range[0])]
+    # filenames = filenames[:5]
+    print('Loading %i files...' %len(filenames))
     data = load_infiles(filenames, columns=columns)
     data['RA'] = data['RA'] - 360 * (data['RA'] > 180)
     idx = (data[mag % 'G'] < gmax) & (data[mag % 'G'] > gmin) & (data[mag % 'R'] < gmax) & (data[mag % 'R'] > gmin)
@@ -26,15 +27,23 @@ def load_data(survey='DECaLS_DR9', ra_range=None):
 
 
 def select_cutout(data, extent):
-    data = (data['RA'] > extent[0]) & (data['RA'] < extent[1]) & (data['DEC'] > extent[2]) & (data['DEC'] < extent[3])
+    data = data[(data['RA'] > extent[0]) & (data['RA'] < extent[1]) & (data['DEC'] > extent[2]) & (data['DEC'] < extent[3])]
 
 
 def select_stream_cutout(data, stream, extent):
     R = stream_matrices[stream]
     phi1, phi2 = rotation_matrix.phi12_rotmat(data['RA'], data['DEC'], R)
-    data['PHI1'] = phi1
-    data['PHI2'] = phi2
-    data = (data['PHI1'] > extent[0]) & (data['PHI1'] < extent[1]) & (data['PHI2'] > extent[2]) & (data['PHI2'] < extent[3])
+
+    new_dtype = np.dtype(data.dtype.descr + [('PHI1', '>f8'), ('PHI2', '>f8')])
+    new_data = np.zeros(data.shape, dtype=new_dtype)
+    for descr in data.dtype.descr:
+        new_data[descr[0]] = data[descr[0]]
+
+    new_data['PHI1'] = phi1
+    new_data['PHI2'] = phi2
+
+    data = new_data
+    data = data[(data['PHI1'] > extent[0]) & (data['PHI1'] < extent[1]) & (data['PHI2'] > extent[2]) & (data['PHI2'] < extent[3])]ß
     return data
 
 
