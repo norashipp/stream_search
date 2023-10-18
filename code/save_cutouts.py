@@ -10,12 +10,14 @@ from stream_data import stream_matrices
 import rotation_matrix
 
 
-def load_data(survey='DECaLS_DR9'):
+def load_data(survey='DECaLS_DR9', ra_range=None):
     gmin, gmax = surveys[survey]['minmag'], surveys[survey]['maxmag']
     data_dir = surveys[survey]['data_dir']
     mag = surveys[survey]['mag']
     columns = ['RA', 'DEC', mag % 'G', mag % 'R']
     filenames = glob.glob(data_dir + '/*.fits')
+    if ra_range is not None:
+        filenames = [f for f in filenames if (f[75:78] < ra_range[1]) and (f[83:86] > ra_range[0])]
     filenames = filenames[:5]
     data = load_infiles(filenames, columns=columns)
     data['RA'] = data['RA'] - 360 * (data['RA'] > 180)
