@@ -44,6 +44,6 @@ def save_data(data, filename='cutout.fits', data_dir='/data/des40.b/data/nshipp/
 
 
 if __name__ == '__main__':
-    data = load_data(survey='DECaLS_DR9')
+    data = load_data(survey='DECaLS_DR9', ra_range=[0,60])
     data = select_stream_cutout(data=data, extent=[-30, 30, -10, 10], stream='ATLAS')
     save_data(data, filename='AAU_LS9_cutout.fits')
