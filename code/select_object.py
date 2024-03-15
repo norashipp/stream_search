@@ -10,7 +10,7 @@ from utils_alex import load_infiles
 from streamlib_new import get_rotmat
 from rotation_matrix import phi12_rotmat
 
-import galstreams
+# import galstreams
 
 
 def get_object(ra, dec, survey='DECaLS', outfile='cutout.fits', radius=0.1):

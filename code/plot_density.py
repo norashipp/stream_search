@@ -27,7 +27,7 @@ import ugali.utils.healpix as uhp
 from ugali.utils.projector import angsep
 # from ugali.utils import fileio
 
-import galstreams
+# import galstreams
 
 from importlib import reload
 import streamlib
@@ -140,6 +140,7 @@ def plot_dwarfs_globs(smap, data, mu, dmu=0.5, coords='cel', coord_stream=None, 
 
 
 def plot_streams(smap, mu, dmu=0.5, coords='cel', coord_stream=None, filename=None):
+    import galstreams
     mw_streams = galstreams.MWStreams(verbose=False)
     for stream in mw_streams.keys():
         if stream in ['Her-Aq', 'EriPhe', 'Sgr-L10']:
@@ -169,6 +170,7 @@ def plot_streams(smap, mu, dmu=0.5, coords='cel', coord_stream=None, filename=No
 
 
 def plot_stream_list(smap, streams, coords='cel', coord_stream=None, filename=None):
+    import galstreams
     mw_streams = galstreams.MWStreams(verbose=False)
     for stream in streams:
         if coords == 'gal':
@@ -249,6 +251,7 @@ def make_movie(infiles, outfile=None, delay=40, queue='local'):
 
 
 def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None, width=0.3, sigma=0.2, delta=0.2, vmin=-1, vmax=5, filename=None):
+    import galstreams
     if ends is not None:
         pass        
     elif stream is not None:
@@ -346,6 +349,7 @@ def plot_stream_zoom(hpxcube, fracdet, modulus, stream=None, ends=None, mu=None,
 
 
 def plot_stream(stream, hpxcube, fracdet, modulus):
+    import galstreams
     mw_streams = galstreams.MWStreams(verbose=False)
     center = (mw_streams[stream].ra.mean(), mw_streams[stream].dec.mean())
     mu = dist2mod(mw_streams[stream].Rhel[0])
@@ -369,6 +373,7 @@ def plot_stream(stream, hpxcube, fracdet, modulus):
 
 if __name__ == "__main__":
     plot_pretty(figsize=(18, 14))
+    import galstreams
 
     survey = 'BASS' # 'DECaLS'
     proj = 'ortho'

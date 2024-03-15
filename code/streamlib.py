@@ -36,7 +36,7 @@ import results
 from streams import GLOBULARS, DWARFS, GALAXIES
 import elysian
 
-import galstreams
+# import galstreams
 import rotation_matrix
 
 FRACMIN = 0.5

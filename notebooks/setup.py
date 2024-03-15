@@ -5,7 +5,7 @@ import matplotlib as mpl
 import astropy.io.fits as fitsio
 from astropy.coordinates import SkyCoord
 import astropy.units as u
-import galstreams
+# import galstreams
 import healpy as hp
 
 import os
@@ -28,7 +28,11 @@ import streamlib
 reload(streamlib)
 import load_data
 reload(load_data)
+import prepare_data
+reload(prepare_data)
+
+from utils import dist2mod, mod2dist, plot_pretty, func_vec2pix
 
 
-plot_density_healpy.plot_pretty(figsize=(12, 12))
+plot_pretty(figsize=(12, 12))
 

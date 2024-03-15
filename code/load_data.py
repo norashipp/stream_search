@@ -1,6 +1,9 @@
 import numpy as np
 import healpy as hp
 import fitsio
+import os
+
+from utils import mod2dist, dist2mod
 
 
 SURVEY = ['BASS', 'DECaLS', 'DES_Y6', 'BASS_DR2', 'DECaLS_DR9', 'DES_Y6_GOLD', 'DELVE']
