@@ -32,6 +32,21 @@ surveys = odict([
          C=[0.05, 0.1],  # [-0.04, 0.1],
          E=2.,
          moduli=[15., 20.])),
+    ('DELVE_DR3',
+     dict(
+         mag='MAG_PSF_SFD_%s',
+         ext=None,
+         data_dir='/home/s1/pferguso/projects/field_of_streams_v2/skim_cats/delve_dr3_1/',
+         fracdet=None,
+         minmag=16.,
+         maxmag=24.0,
+         stargal='EXTENDED_CLASS',
+         stargal_cut=0,
+         err=lambda x: 0.0010908679647672335 +
+             np.exp((x - 27.091072029215375) / 1.0904624484538419),
+         C=[0.05, 0.1],  # [-0.04, 0.1],
+         E=2.,
+         moduli=[15., 20.])),
     ('BASS_DR9',
      dict(
          mag='MAG_SFD_%s',
@@ -75,6 +90,21 @@ surveys = odict([
          err=lambda x: 0.0010908679647672335 + \
              np.exp((x - 27.091072029215375) / 1.0904624484538419),
          C=[0.05, 0.1],  # [-0.04, 0.1],
+         E=2.,
+         moduli=[15., 20.])),
+    ('DECaLS_DR10_OFF',
+     dict(
+         mag='MAG_SFD_%s',
+         ext=None,
+         data_dir='/home/s1/pferguso/projects/field_of_streams_v2/skim_cats/lsdr10_south',
+         fracdet=None,
+         minmag=16.,
+         maxmag=23.5,
+         stargal=None,
+         stargal_cut=None,
+         err=lambda x: 0.0010908679647672335 + \
+             np.exp((x - 27.091072029215375) / 1.0904624484538419),
+         C=[0.05-0.5, 0.1-0.5],  # [-0.04, 0.1],
          E=2.,
          moduli=[15., 20.])),
     ('DES_Y6_GOLD',
