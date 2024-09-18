@@ -1,12 +1,14 @@
+""" Code to perform the isochron matched filter. """
 from __future__ import division
+import warnings
 
 import numpy as np
 from matplotlib.path import Path
 
 from ugali.analysis.isochrone import factory as isochrone_factory
+from ugali.utils.shell import get_iso_dir
 
 import surveys
-
 
 ###########
 # CMD CUT #
@@ -16,12 +18,32 @@ HOMEDIR = '/home/s1/nshipp/'
 # HOMEDIR = '/Users/nora/'
 
 
-def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey='DECaLS', clip=None):
+def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None,
+           survey='DECaLS', clip=True):
+    """Make the the isochrone matched-filter polygon.
+
+    Parameters
+    ----------
+    mu : distance modulus
+    age: isochrone age [Gyr]
+    z  : isochrone metallicity [Z_sol]
+    dmu: distance modulus spread
+    C  : additive color spread
+    E  : multiplicative error spread
+    err: photometric error model; function that returns magerr as 
+         a function of magnitude.
+    survey: key to load error model
+    clip: maximum absolute magnitude
+    
+    Returns
+    -------
+    verts : vertices of the polygon
+    """
     if err == None:
         try:
             err = surveys.surveys[survey]['err']
         except:
-            print('Using DES err!')
+            warnings.warn('Using DES photometric error model!')
             err = surveys.surveys['DES_DR1']['err']
     """ Builds ordered polygon for masking """
 
@@ -34,17 +56,16 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
     # iso = ic.isochrone_factory('Dotter', age=age, distance_modulus=mu, z=z, dirname='/home/s1/nshipp/.ugali/isochrones/des/dotter2008')
     
     if survey in ['PS1']:
-        iso = isochrone_factory(
-            'Dotter', survey='ps1', age=age, distance_modulus=mu, z=z)
+        iso = isochrone_factory('Dotter', survey='ps1',
+                                age=age, distance_modulus=mu, z=z)
     elif survey in ['DES_DR1', 'DES_Y3A2', 'DECaLS', 'DES_Y6', 'DES_Y6_GOLD', 'DELVE', 'DECaLS_DR9', 'DECaLS_DR10', 'DECaLS_DR10_OFF', 'DELVE_R1', 'DELVE_R2', 'DELVE_DR3']:
         iso = isochrone_factory('Dotter', survey='des',
                                 age=age, distance_modulus=mu, z=z)
     elif survey in ['BASS', 'BASS_DR9']:
         try:
-            print(
-                HOMEDIR + '.ugali/isochrones/ps1/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
-            iso = np.loadtxt(
-                HOMEDIR + '.ugali/isochrones/ps1/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
+            filename = os.path.join(get_iso_dir(),'ps1/dotter2016/iso_a%.1f_z%.5f.dat' % (age, z))
+            print(filename)
+            iso = np.loadtxt(filename)
         except:
             print('Error loading BASS isochrone...')
             print(mu, age, z)
@@ -61,30 +82,55 @@ def mkpol(mu, age=12., z=0.0004, dmu=0.5, C=[0.05, 0.05], E=4., err=None, survey
             0.00855 * (g_ps1 - i_ps1)**3
 
     else:
-        print('Survey error - update isochrones.')
+        warning.warn('Survey error - update isochrones.')
 
     if survey in ['BASS', 'BASS_DR9']:
-        c = g_bass - r_bass
-        m = g_bass
+        color = g_bass - r_bass
+        mag = g_bass
     else:
-        c = iso.color
-        m = iso.mag
+        color = iso.color
+        mag = iso.mag
 
     if clip is not None:
         # Clip for plotting, use gmin otherwise
         # clip abs mag
-        cut = (m > clip) & ((m + mu) < 23.0) & (c > 0) & (c < 1)
-        c = c[cut]
-        m = m[cut]
+        cut = (mag > clip) & ((mag + mu) < 23.0) & \
+            (color > 0) & (color < 1)
+        color = color[cut]
+        mag = mag[cut]
 
-    mnear = m + mu - dmu / 2.
-    mfar = m + mu + dmu / 2.
-    C = np.r_[c + E * err(mfar) + C[1], c[::-1] - E * err(mnear[::-1]) - C[0]]
-    M = np.r_[m, m[::-1]]
+    # Spread in magnitude     
+    mnear = mag + mu - dmu / 2.
+    mfar = mag + mu + dmu / 2.
+    # Spread in color
+    C = np.r_[color + E * err(mfar) + C[1],
+              color[::-1] - E * err(mnear[::-1]) - C[0]]
+    M = np.r_[mag, mag[::-1]]
     return np.c_[C, M]
 
 
-def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5, C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
+def select_isochrone(mag_g, mag_r, err, iso_params=[17.0, 12.5, 0.0001], dmu=0.5,
+                     C=[0.01, 0.01], E=2, gmin=None, survey='DECaLS'):
+    """Create the isochrone matched-fitler polygon and select stars that
+    reside within it.
+
+    Parameters
+    ----------
+    mag_g, mag_r : measured magnitudes of the stars
+    err: photometric error model; function that returns magerr as 
+         a function of magnitude.
+    iso_params : isochrone parameters [mu, age, Z]
+    dmu: distance modulus spread
+    C  : additive color spread
+    E  : multiplicative error spread
+    gmin : bright magnitude limit in g-band
+    survey: key to load error model
+    
+    Returns
+    -------
+    selection : boolean array indicating if the object is in the polygon
+
+    """
     mu, age, z = iso_params
 
     mk = mkpol(mu=mu, age=age, z=z, dmu=dmu, C=C, E=E, err=err, survey=survey)
